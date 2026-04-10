@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "zhipu-web-search-sse": {
-      "type": "sse",
-      "url": "https://open.bigmodel.cn/api/mcp/web_search/sse?Authorization=942de2387786438c87ed68a85429c527.pVNEiOCG2e2yxPx3"
-    }
-  }
-}

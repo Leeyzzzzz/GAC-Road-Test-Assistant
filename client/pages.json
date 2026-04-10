@@ -1,0 +1,50 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "试验列表"
+      }
+    },
+    {
+      "path": "pages/session-detail/index",
+      "style": {
+        "navigationBarTitleText": "试验详情"
+      }
+    },
+    {
+      "path": "pages/record/index",
+      "style": {
+        "navigationBarTitleText": "录音记录"
+      }
+    },
+    {
+      "path": "pages/export/index",
+      "style": {
+        "navigationBarTitleText": "导出"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "路测助手",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#007AFF",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "试验"
+      },
+      {
+        "pagePath": "pages/export/index",
+        "text": "导出"
+      }
+    ]
+  }
+}
