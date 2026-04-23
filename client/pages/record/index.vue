@@ -40,7 +40,7 @@
         </view>
         <view class="ai-field">
           <text class="ai-label">严重程度</text>
-          <view :class="['ai-tag', 'severity-' + record.severity]">
+          <view :class="['ai-tag', severityClass(record.severity)]">
             <text class="ai-tag-text">{{ record.severity }}</text>
           </view>
         </view>
@@ -316,6 +316,15 @@ export default {
     removeAttachment(idx) {
       this.attachments.splice(idx, 1);
     },
+    severityClass(severity) {
+      const map = {
+        致命: 'severity-critical',
+        严重: 'severity-major',
+        一般: 'severity-normal',
+        轻微: 'severity-minor',
+      };
+      return map[severity] || '';
+    },
     formatDuration(seconds) {
       const m = Math.floor(seconds / 60);
       const s = seconds % 60;
@@ -444,10 +453,10 @@ export default {
   padding: 4rpx 16rpx;
 }
 
-.severity-致命 { background: #ffccc7; }
-.severity-严重 { background: #ffa39e; }
-.severity-一般 { background: #fff1f0; }
-.severity-轻微 { background: #f6ffed; }
+.severity-critical { background: #ffccc7; }
+.severity-major { background: #ffa39e; }
+.severity-normal { background: #fff1f0; }
+.severity-minor { background: #f6ffed; }
 
 .ai-tag-text {
   font-size: 24rpx;

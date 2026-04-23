@@ -9,3 +9,5 @@ data/
 .DS_Store
 Thumbs.db
 .worktrees/
+scripts/logs/
+server/*.log

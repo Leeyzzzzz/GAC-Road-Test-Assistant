@@ -3,5 +3,6 @@ dist/
 unpackage/
 .hbuilderx/
 .env
+.env.development
 .env.local
 .env.*.local

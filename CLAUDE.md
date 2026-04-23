@@ -53,9 +53,11 @@ src/services/
 HBuilderX-managed UniApp + Vue3 project. No `package.json` at root — managed by HBuilderX IDE.
 
 ```
+vite.config.js          → loadEnv(mode, __dirname) + define to inject VITE_* into process.env
 pages.json              → Routes & tab bar config
 manifest.json           → UniApp config (H5 dev server proxies /api → localhost:3000)
-services/api.js         → All HTTP calls, BASE_URL = 'http://192.168.1.10:3000'
+services/config.js      → Reads process.env.VITE_API_BASE_URL (statically replaced by Vite define)
+services/api.js         → All HTTP calls, base URL from config.js
 pages/
   index/                → Session list (home)
   session-detail/       → Session detail + create form (dual-purpose via ?new=1)
@@ -64,6 +66,8 @@ pages/
 ```
 
 **Conditional compilation:** `// #ifdef H5` / `// #ifndef H5` for platform-specific code (browser download vs uni.downloadFile+uni.openDocument).
+
+**Env var loading:** HBuilderX does NOT auto-load `.env`. `vite.config.js` must call `loadEnv(mode, __dirname)` and inject values via `define`. Use `process.env.VITE_*` in code (not `import.meta.env.*` which only works on H5). Client `.env` must be saved as **UTF-8 without BOM** — Windows editors (Notepad) add BOM by default which silently breaks variable names.
 
 ## Testing
 
@@ -86,5 +90,4 @@ The living PRD is at `docs/superpowers/specs/2026-04-09-road-test-assistant-desi
 
 - ZhiPu ASR has 30-second audio limit; Qwen adapter recommended but not yet switched
 - GPS collection happens before record creation, so GPS data gets discarded
-- Client `BASE_URL` is hardcoded IP (192.168.1.10:3000) — needs to match dev machine
 - No loading indicator during ASR transcription
