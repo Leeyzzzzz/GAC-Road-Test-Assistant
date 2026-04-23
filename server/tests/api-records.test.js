@@ -27,7 +27,10 @@ function getApp() {
 
 async function createTestSession() {
   const app = getApp();
-  const project = await request(app).post('/api/projects').send({ name: 'RecordTest' });
+  const project = await request(app).post('/api/projects').send({
+    name: 'RecordTest',
+    code: `RECORD-${Date.now()}-${Math.random()}`,
+  });
   const session = await request(app).post('/api/sessions').send({
     project_id: project.body.id,
     tester: '测试员',

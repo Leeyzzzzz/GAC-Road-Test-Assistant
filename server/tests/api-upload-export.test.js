@@ -27,7 +27,10 @@ function getApp() {
 
 async function createTestSessionWithRecords() {
   const app = getApp();
-  const project = await request(app).post('/api/projects').send({ name: 'ExportTest' });
+  const project = await request(app).post('/api/projects').send({
+    name: 'ExportTest',
+    code: `EXPORT-${Date.now()}-${Math.random()}`,
+  });
   const session = await request(app).post('/api/sessions').send({
     project_id: project.body.id,
     tester: '测试员',
@@ -54,38 +57,38 @@ describe('API - Upload', () => {
 });
 
 describe('API - Export', () => {
-  test('POST /api/export/excel returns xlsx file', async () => {
+  test('GET /api/export/excel returns xlsx file', async () => {
     const session = await createTestSessionWithRecords();
     const app = getApp();
     const res = await request(app)
-      .post('/api/export/excel')
-      .send({ session_id: session.id });
+      .get('/api/export/excel')
+      .query({ session_id: session.id });
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toContain('spreadsheetml');
     expect(res.headers['content-disposition']).toContain('.xlsx');
     // supertest may parse binary as object; just check headers are correct
   });
 
-  test('POST /api/export/csv returns csv file', async () => {
+  test('GET /api/export/csv returns csv file', async () => {
     const session = await createTestSessionWithRecords();
     const app = getApp();
     const res = await request(app)
-      .post('/api/export/csv')
-      .send({ session_id: session.id });
+      .get('/api/export/csv')
+      .query({ session_id: session.id });
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toContain('text/csv');
     expect(res.headers['content-disposition']).toContain('.csv');
   });
 
-  test('POST /api/export/excel rejects missing session_id', async () => {
+  test('GET /api/export/excel rejects missing session_id', async () => {
     const app = getApp();
-    const res = await request(app).post('/api/export/excel').send({});
+    const res = await request(app).get('/api/export/excel');
     expect(res.status).toBe(400);
   });
 
-  test('POST /api/export/excel returns 404 for missing session', async () => {
+  test('GET /api/export/excel returns 404 for missing session', async () => {
     const app = getApp();
-    const res = await request(app).post('/api/export/excel').send({ session_id: 99999 });
+    const res = await request(app).get('/api/export/excel').query({ session_id: 99999 });
     expect(res.status).toBe(404);
   });
 });

@@ -1,6 +1,6 @@
 # 路测助手 MVP
 
-智驾场地试验用例管理系统 —— 自动驾驶/ADAS 路测场景下，副驾记录员通过语音快速记录问题，AI 自动提取结构化信息。
+智驾场地试验用例管理系统。当前 Phase 1 已重构为“项目 -> 试验 -> 记录”三层工作流：技术负责人先管理项目，再在项目内创建和维护试验，执行人员继续在试验内录音、整理记录并导出。
 
 ## 环境要求
 
@@ -47,13 +47,22 @@ H5 开发地址：http://localhost:8080
 
 ### 4. 真机调试
 
-手机和电脑需在同一局域网。修改 `client/services/api.js` 中的 `BASE_URL` 为电脑内网 IP：
+手机和电脑需在同一局域网或同一手机热点下。前端从 `client/.env` 读取后端地址，而不是把地址写死在源码里。
 
-```js
-const BASE_URL = 'http://192.168.x.x:3000';
+先复制示例文件并填写当前电脑可访问的后端地址：
+
+```powershell
+Copy-Item client/.env.example client/.env
 ```
 
-然后在 HBuilderX 中运行到手机（USB 连接或扫码）。
+`client/.env` 内容示例：
+
+```env
+VITE_API_BASE_URL=http://192.168.x.x:3000
+VITE_API_TIMEOUT=10000
+```
+
+然后在 HBuilderX 中重新运行到手机（USB 连接或扫码）。
 
 ## 运行测试
 
@@ -79,11 +88,15 @@ npx jest tests/queries.test.js --forceExit  # 运行单个测试文件
 ```
 client/                  # UniApp + Vue3 前端（HBuilderX 管理）
   pages/
-    index/               # 首页 - 试验列表
-    session-detail/      # 试验详情 / 新建试验
+    index/               # 首页 - 我的项目工作台
+    project-detail/      # 项目详情 / 创建项目 / 编辑项目
+    project-archive/     # 归档项目列表
+    session-detail/      # 试验详情 / 新建试验 / 编辑试验
     record/              # 录音记录（核心页面）
     export/              # 数据导出
   services/api.js        # API 调用封装
+  services/config.js     # 环境变量读取（process.env.VITE_*）
+  vite.config.js         # Vite 配置，注入客户端环境变量
   manifest.json          # UniApp 应用配置
   pages.json             # 页面路由和导航栏
 
@@ -112,6 +125,7 @@ docs/                    # 设计文档
 | 组件 | 选型 | 说明 |
 |------|------|------|
 | 前端框架 | UniApp + Vue3 | 跨端（H5 + 企业微信小程序），HBuilderX 编译 |
+| UI 组件 | TDesign UniApp | 首页、项目页、试验页优先复用组件能力 |
 | 后端 | Node.js + Express | 轻量，快速出 MVP |
 | 数据库 | SQLite (better-sqlite3) | MVP 阶段本地存储，后续可迁移 MySQL |
 | 文件存储 | 本地 uploads 目录 | 后续迁移阿里云 OSS |
@@ -127,4 +141,12 @@ docs/                    # 设计文档
 4. 复制 `.env.example` 为 `.env`，填入 API Key
 5. `npm run dev` 启动后端
 6. HBuilderX 打开 `client/` 目录，运行到浏览器
-7. 如果真机调试，修改 `client/services/api.js` 中的 `BASE_URL` 为新电脑的内网 IP
+7. 如果真机调试，复制 `client/.env.example` 为 `client/.env`，并把 `VITE_API_BASE_URL` 改成新电脑的内网 IP
+
+## 当前页面流
+
+- `我的项目`：只展示未归档项目，支持创建、编辑、归档、删除项目
+- `归档项目`：查看已归档项目，支持恢复和彻底删除
+- `项目详情`：查看项目概览，按测试日期升序管理该项目下的试验
+- `试验详情`：只允许在已有项目上下文中创建试验，不再支持手填项目名建项目
+- `录音记录` / `导出`：延续原有记录采集和导出流程

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getAllSessions, getSessionById, createSession, updateSession } = require('../models/queries');
+const { getAllSessions, getSessionById, createSession, updateSession, deleteSession } = require('../models/queries');
 
 // GET /api/sessions - list sessions (optional ?project_id= filter)
 router.get('/', (req, res) => {
@@ -35,6 +35,15 @@ router.put('/:id', (req, res) => {
     return res.status(404).json({ error: '试验不存在' });
   }
   res.json(session);
+});
+
+// DELETE /api/sessions/:id
+router.delete('/:id', (req, res) => {
+  const deleted = deleteSession(Number(req.params.id));
+  if (!deleted) {
+    return res.status(404).json({ error: '试验不存在' });
+  }
+  res.json({ success: true });
 });
 
 module.exports = router;

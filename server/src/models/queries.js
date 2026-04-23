@@ -4,7 +4,12 @@ const { getDB } = require('./database');
 
 function getAllProjects() {
   const db = getDB();
-  return db.prepare('SELECT * FROM projects ORDER BY created_at DESC').all();
+  return db.prepare('SELECT * FROM projects WHERE archived_at IS NULL ORDER BY created_at DESC').all();
+}
+
+function getArchivedProjects() {
+  const db = getDB();
+  return db.prepare('SELECT * FROM projects WHERE archived_at IS NOT NULL ORDER BY archived_at DESC, updated_at DESC').all();
 }
 
 function getProjectById(id) {
@@ -12,17 +17,70 @@ function getProjectById(id) {
   return db.prepare('SELECT * FROM projects WHERE id = ?').get(id);
 }
 
-function createProject({ name, tech_lead }) {
+function createProject({ name, code, tech_lead }) {
   const db = getDB();
-  const result = db.prepare('INSERT INTO projects (name, tech_lead) VALUES (?, ?)').run(name, tech_lead || null);
+  const result = db.prepare('INSERT INTO projects (name, code, tech_lead) VALUES (?, ?, ?)').run(
+    name,
+    code || null,
+    tech_lead || null
+  );
   return db.prepare('SELECT * FROM projects WHERE id = ?').get(result.lastInsertRowid);
 }
 
-function updateProject(id, { name, tech_lead }) {
+function updateProject(id, { name, code, tech_lead }) {
   const db = getDB();
-  db.prepare('UPDATE projects SET name = ?, tech_lead = ?, updated_at = datetime(\'now\',\'localtime\') WHERE id = ?')
-    .run(name, tech_lead || null, id);
+  const existing = getProjectById(id);
+  if (!existing) return null;
+
+  db.prepare(`
+    UPDATE projects
+    SET name = ?, code = ?, tech_lead = ?, updated_at = datetime('now','localtime')
+    WHERE id = ?
+  `).run(
+    name || existing.name,
+    code !== undefined ? code : existing.code,
+    tech_lead !== undefined ? tech_lead : existing.tech_lead,
+    id
+  );
   return db.prepare('SELECT * FROM projects WHERE id = ?').get(id);
+}
+
+function archiveProject(id) {
+  const db = getDB();
+  db.prepare(`
+    UPDATE projects
+    SET archived_at = datetime('now','localtime'), updated_at = datetime('now','localtime')
+    WHERE id = ?
+  `).run(id);
+  return getProjectById(id);
+}
+
+function restoreProject(id) {
+  const db = getDB();
+  db.prepare(`
+    UPDATE projects
+    SET archived_at = NULL, updated_at = datetime('now','localtime')
+    WHERE id = ?
+  `).run(id);
+  return getProjectById(id);
+}
+
+function deleteProject(id) {
+  const db = getDB();
+  const existing = getProjectById(id);
+  if (!existing) return false;
+
+  const transaction = db.transaction((projectId) => {
+    db.prepare(`
+      DELETE FROM records
+      WHERE session_id IN (SELECT id FROM test_sessions WHERE project_id = ?)
+    `).run(projectId);
+    db.prepare('DELETE FROM test_sessions WHERE project_id = ?').run(projectId);
+    db.prepare('DELETE FROM projects WHERE id = ?').run(projectId);
+  });
+
+  transaction(id);
+  return true;
 }
 
 // ========== Test Sessions ==========
@@ -63,6 +121,20 @@ function updateSession(id, { tester, test_date, vehicle_info, route, status }) {
     id
   );
   return getSessionById(id);
+}
+
+function deleteSession(id) {
+  const db = getDB();
+  const existing = getSessionById(id);
+  if (!existing) return false;
+
+  const transaction = db.transaction((sessionId) => {
+    db.prepare('DELETE FROM records WHERE session_id = ?').run(sessionId);
+    db.prepare('DELETE FROM test_sessions WHERE id = ?').run(sessionId);
+  });
+
+  transaction(id);
+  return true;
 }
 
 // ========== Records ==========
@@ -141,7 +213,8 @@ function getSubmittedRecordsBySession(sessionId) {
 }
 
 module.exports = {
-  getAllProjects, getProjectById, createProject, updateProject,
-  getAllSessions, getSessionById, createSession, updateSession,
+  getAllProjects, getArchivedProjects, getProjectById, createProject, updateProject,
+  archiveProject, restoreProject, deleteProject,
+  getAllSessions, getSessionById, createSession, updateSession, deleteSession,
   getRecordsBySession, getRecordById, createRecord, updateRecord, getSubmittedRecordsBySession,
 };

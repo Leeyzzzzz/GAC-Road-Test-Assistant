@@ -6,6 +6,11 @@ const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', '..', 'data', 
 
 let db;
 
+function columnExists(database, tableName, columnName) {
+  const columns = database.prepare(`PRAGMA table_info(${tableName})`).all();
+  return columns.some(column => column.name === columnName);
+}
+
 function getDB() {
   if (!db) {
     const dir = path.dirname(DB_PATH);
@@ -26,7 +31,9 @@ function initDB() {
     CREATE TABLE IF NOT EXISTS projects (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
+      code TEXT,
       tech_lead TEXT,
+      archived_at DATETIME,
       created_at DATETIME DEFAULT (datetime('now','localtime')),
       updated_at DATETIME DEFAULT (datetime('now','localtime'))
     );
@@ -41,7 +48,7 @@ function initDB() {
       status TEXT DEFAULT 'active' CHECK(status IN ('active', 'completed')),
       created_at DATETIME DEFAULT (datetime('now','localtime')),
       updated_at DATETIME DEFAULT (datetime('now','localtime')),
-      FOREIGN KEY (project_id) REFERENCES projects(id)
+      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS records (
@@ -63,8 +70,22 @@ function initDB() {
       status TEXT DEFAULT 'draft' CHECK(status IN ('draft', 'submitted')),
       created_at DATETIME DEFAULT (datetime('now','localtime')),
       updated_at DATETIME DEFAULT (datetime('now','localtime')),
-      FOREIGN KEY (session_id) REFERENCES test_sessions(id)
+      FOREIGN KEY (session_id) REFERENCES test_sessions(id) ON DELETE CASCADE
     );
+  `);
+
+  if (!columnExists(db, 'projects', 'code')) {
+    db.exec('ALTER TABLE projects ADD COLUMN code TEXT');
+  }
+
+  if (!columnExists(db, 'projects', 'archived_at')) {
+    db.exec('ALTER TABLE projects ADD COLUMN archived_at DATETIME');
+  }
+
+  db.exec(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_code_unique
+    ON projects(code)
+    WHERE code IS NOT NULL AND code != '';
   `);
 
   return db;

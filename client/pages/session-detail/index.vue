@@ -1,80 +1,100 @@
 <template>
   <view class="page">
-    <!-- New Session Form -->
-    <view v-if="isNew" class="form-section">
-      <text class="section-title">新建试验</text>
+    <view v-if="showForm" class="form-wrap">
+      <text class="form-title">{{ formMode === 'new' ? '新建试验' : '编辑试验' }}</text>
+      <text class="form-desc">试验属于项目上下文，不再支持在这里手工创建项目。</text>
 
-      <view class="form-group">
-        <text class="label">项目名称 *</text>
-        <input class="input" v-model="form.projectName" placeholder="请输入项目名称" />
+      <view class="context-card">
+        <text class="context-label">所属项目</text>
+        <view class="context-main">
+          <text class="context-name">{{ projectName || '未关联项目' }}</text>
+          <t-tag v-if="projectCode" theme="primary" variant="light" size="small">{{ projectCode }}</t-tag>
+        </view>
       </view>
 
-      <view class="form-group">
-        <text class="label">技术负责人</text>
-        <input class="input" v-model="form.techLead" placeholder="请输入技术负责人" />
+      <view class="field-group">
+        <text class="field-label">测试人员 *</text>
+        <t-input v-model:value="form.tester" placeholder="请输入测试人员" clearable />
       </view>
 
-      <view class="form-group">
-        <text class="label">测试人员 *</text>
-        <input class="input" v-model="form.tester" placeholder="请输入测试人员" />
-      </view>
-
-      <view class="form-group">
-        <text class="label">测试日期</text>
+      <view class="field-group">
+        <text class="field-label">测试日期 *</text>
         <picker mode="date" :value="form.testDate" @change="onDateChange">
-          <view class="picker">{{ form.testDate }}</view>
+          <view class="picker-box">{{ form.testDate }}</view>
         </picker>
       </view>
 
-      <view class="form-group">
-        <text class="label">车辆信息</text>
-        <input class="input" v-model="form.vehicleInfo" placeholder="如：沪A12345" />
+      <view class="field-group">
+        <text class="field-label">车辆信息</text>
+        <t-input v-model:value="form.vehicleInfo" placeholder="例如：沪A12345" clearable />
       </view>
 
-      <view class="form-group">
-        <text class="label">测试路线</text>
-        <input class="input" v-model="form.route" placeholder="如：高速环线" />
+      <view class="field-group">
+        <text class="field-label">测试路线</text>
+        <t-input v-model:value="form.route" placeholder="例如：高速环线" clearable />
       </view>
 
-      <button class="btn-primary" @click="createNewSession" :disabled="submitting">
-        {{ submitting ? '创建中...' : '创建试验' }}
-      </button>
+      <view class="form-actions">
+        <t-button theme="primary" block :loading="submitting" @click="submitSession">
+          {{ formMode === 'new' ? '创建试验' : '保存试验' }}
+        </t-button>
+      </view>
     </view>
 
-    <!-- Session Detail -->
     <view v-else>
-      <!-- Session Info Card -->
       <view class="info-card">
-        <view class="info-row">
-          <text class="info-label">测试人员</text>
-          <text class="info-value">{{ session.tester }}</text>
-        </view>
-        <view class="info-row">
-          <text class="info-label">测试日期</text>
-          <text class="info-value">{{ session.test_date }}</text>
-        </view>
-        <view v-if="session.vehicle_info" class="info-row">
-          <text class="info-label">车辆信息</text>
-          <text class="info-value">{{ session.vehicle_info }}</text>
-        </view>
-        <view v-if="session.route" class="info-row">
-          <text class="info-label">测试路线</text>
-          <text class="info-value">{{ session.route }}</text>
-        </view>
-        <view class="info-row">
-          <text class="info-label">状态</text>
-          <text :class="['info-value', session.status === 'active' ? 'text-blue' : 'text-green']">
+        <view class="info-head">
+          <view>
+            <text class="project-title">{{ projectName || `项目 ${session.project_id}` }}</text>
+            <text class="project-subtitle">{{ projectCode || '试验详情' }}</text>
+          </view>
+          <t-tag :theme="session.status === 'active' ? 'success' : 'default'" variant="light">
             {{ session.status === 'active' ? '进行中' : '已结束' }}
-          </text>
+          </t-tag>
+        </view>
+
+        <view class="info-grid">
+          <view class="info-row">
+            <text class="info-label">测试人员</text>
+            <text class="info-value">{{ session.tester }}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">测试日期</text>
+            <text class="info-value">{{ session.test_date }}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">车辆信息</text>
+            <text class="info-value">{{ session.vehicle_info || '未填写' }}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">测试路线</text>
+            <text class="info-value">{{ session.route || '未填写' }}</text>
+          </view>
+        </view>
+
+        <view class="detail-actions">
+          <t-button size="small" variant="outline" @click="goToEditSession">编辑试验</t-button>
+          <t-button
+            v-if="session.status === 'active'"
+            size="small"
+            theme="danger"
+            variant="outline"
+            @click="endSession"
+          >
+            结束试验
+          </t-button>
         </view>
       </view>
 
-      <!-- Records List -->
       <view class="records-section">
-        <text class="section-title">记录列表 ({{ records.length }})</text>
+        <view class="section-head">
+          <text class="section-title">记录列表</text>
+          <text class="section-subtitle">{{ records.length }} 条记录</text>
+        </view>
 
-        <view v-if="records.length === 0" class="empty">
-          <text class="empty-text">暂无记录，点击下方按钮开始录音</text>
+        <view v-if="records.length === 0" class="empty-wrap">
+          <text class="empty-title">暂无记录</text>
+          <text class="empty-desc">点击下方按钮开始录音并创建记录。</text>
         </view>
 
         <view
@@ -83,48 +103,37 @@
           class="record-card"
           @click="goToRecord(record.id)"
         >
-          <view class="record-header">
-            <view :class="['record-status', record.status === 'draft' ? 'draft' : 'submitted']">
-              <text class="record-status-text">{{ record.status === 'draft' ? '草稿' : '已提交' }}</text>
-            </view>
+          <view class="record-head">
+            <t-tag size="small" variant="light" :theme="record.status === 'draft' ? 'warning' : 'success'">
+              {{ record.status === 'draft' ? '草稿' : '已提交' }}
+            </t-tag>
             <text class="record-time">{{ formatTime(record.created_at) }}</text>
           </view>
           <text class="record-summary">{{ record.summary || record.raw_text || '未处理' }}</text>
-          <view v-if="record.problem_type" class="record-tags">
-            <view class="tag"><text class="tag-text">{{ record.problem_type }}</text></view>
-            <view v-if="record.severity" class="tag severity"><text class="tag-text">{{ record.severity }}</text></view>
-          </view>
         </view>
       </view>
 
-      <!-- End Session Button -->
-      <view v-if="session.status === 'active'" class="end-session">
-        <button class="btn-end" @click="endSession">结束试验</button>
-      </view>
-    </view>
-
-    <!-- Floating Record Button -->
-    <view v-if="!isNew && session.status === 'active'" class="fab-record" @click="goToNewRecord">
-      <text class="fab-record-icon">🎙</text>
-      <text class="fab-record-text">录音</text>
+      <t-fab v-if="session.status === 'active'" icon="add" text="录音记录" @click="goToNewRecord" />
     </view>
   </view>
 </template>
 
 <script>
-import { getSession, createSession, updateSession, getRecords, createProject, getProjects } from '../../services/api';
+import { createSession, getProject, getRecords, getSession, updateSession } from '../../services/api';
 
 export default {
   data() {
     return {
-      isNew: false,
+      formMode: 'new',
+      showForm: false,
+      submitting: false,
       sessionId: null,
+      projectId: null,
+      projectName: '',
+      projectCode: '',
       session: {},
       records: [],
-      submitting: false,
       form: {
-        projectName: '',
-        techLead: '',
         tester: '',
         testDate: new Date().toISOString().split('T')[0],
         vehicleInfo: '',
@@ -134,86 +143,119 @@ export default {
   },
   onLoad(options) {
     if (options.new === '1') {
-      this.isNew = true;
-    } else if (options.id) {
+      this.projectId = Number(options.project_id);
+      this.projectName = options.project_name ? decodeURIComponent(options.project_name) : '';
+      this.projectCode = options.project_code ? decodeURIComponent(options.project_code) : '';
+      this.formMode = 'new';
+      this.showForm = true;
+      uni.setNavigationBarTitle({ title: '新建试验' });
+      return;
+    }
+
+    if (options.id) {
       this.sessionId = Number(options.id);
+      this.formMode = options.edit === '1' ? 'edit' : 'view';
+      this.showForm = this.formMode === 'edit';
+      uni.setNavigationBarTitle({ title: this.showForm ? '编辑试验' : '试验详情' });
       this.loadSession();
     }
   },
   onShow() {
-    if (this.sessionId) {
+    if (this.sessionId && !this.showForm) {
       this.loadRecords();
     }
   },
   methods: {
     async loadSession() {
       try {
-        this.session = await getSession(this.sessionId);
+        const session = await getSession(this.sessionId);
+        this.session = session;
+        this.projectId = session.project_id;
+        this.form.tester = session.tester || '';
+        this.form.testDate = session.test_date || this.form.testDate;
+        this.form.vehicleInfo = session.vehicle_info || '';
+        this.form.route = session.route || '';
+
+        try {
+          const project = await getProject(session.project_id);
+          this.projectName = project.name || '';
+          this.projectCode = project.code || '';
+        } catch (projectErr) {
+          this.projectName = '';
+          this.projectCode = '';
+        }
       } catch (err) {
-        uni.showToast({ title: '加载失败', icon: 'none' });
+        uni.showToast({ title: err.message || '加载失败', icon: 'none' });
       }
     },
     async loadRecords() {
       try {
         this.records = await getRecords(this.sessionId);
       } catch (err) {
-        uni.showToast({ title: '加载记录失败', icon: 'none' });
+        uni.showToast({ title: err.message || '加载记录失败', icon: 'none' });
       }
     },
     onDateChange(e) {
       this.form.testDate = e.detail.value;
     },
-    async createNewSession() {
-      const f = this.form;
-      if (!f.projectName || !f.tester) {
-        uni.showToast({ title: '请填写必填项', icon: 'none' });
+    async submitSession() {
+      if (!this.projectId || !this.form.tester || !this.form.testDate) {
+        uni.showToast({ title: '请完整填写试验字段', icon: 'none' });
         return;
       }
+
       this.submitting = true;
       try {
-        const projects = await getProjects();
-        let project = projects.find(p => p.name === f.projectName);
-        if (!project) {
-          project = await createProject({ name: f.projectName, tech_lead: f.techLead });
+        if (this.formMode === 'new') {
+          const session = await createSession({
+            project_id: this.projectId,
+            tester: this.form.tester,
+            test_date: this.form.testDate,
+            vehicle_info: this.form.vehicleInfo,
+            route: this.form.route,
+          });
+          uni.showToast({ title: '试验已创建', icon: 'success' });
+          uni.redirectTo({ url: `/pages/session-detail/index?id=${session.id}` });
+        } else {
+          await updateSession(this.sessionId, {
+            tester: this.form.tester,
+            test_date: this.form.testDate,
+            vehicle_info: this.form.vehicleInfo,
+            route: this.form.route,
+          });
+          uni.showToast({ title: '试验已保存', icon: 'success' });
+          uni.redirectTo({ url: `/pages/session-detail/index?id=${this.sessionId}` });
         }
-        const sess = await createSession({
-          project_id: project.id,
-          tester: f.tester,
-          test_date: f.testDate,
-          vehicle_info: f.vehicleInfo,
-          route: f.route,
-        });
-        this.sessionId = sess.id;
-        this.isNew = false;
-        this.session = sess;
-        uni.showToast({ title: '创建成功', icon: 'success' });
       } catch (err) {
-        uni.showToast({ title: err.message || '创建失败', icon: 'none' });
+        uni.showToast({ title: err.message || '保存失败', icon: 'none' });
       } finally {
         this.submitting = false;
       }
     },
+    goToEditSession() {
+      uni.navigateTo({ url: `/pages/session-detail/index?id=${this.sessionId}&edit=1` });
+    },
     endSession() {
       uni.showModal({
-        title: '确认结束试验？',
-        content: '结束后将无法继续录音',
+        title: '结束试验',
+        content: '结束后将无法继续新增录音记录。',
+        confirmColor: '#d54941',
         success: async (res) => {
-          if (res.confirm) {
-            try {
-              this.session = await updateSession(this.sessionId, { status: 'completed' });
-              uni.showToast({ title: '试验已结束', icon: 'success' });
-            } catch (err) {
-              uni.showToast({ title: '操作失败', icon: 'none' });
-            }
+          if (!res.confirm) return;
+          try {
+            this.session = await updateSession(this.sessionId, { status: 'completed' });
+            uni.showToast({ title: '试验已结束', icon: 'success' });
+          } catch (err) {
+            uni.showToast({ title: err.message || '操作失败', icon: 'none' });
           }
         },
       });
     },
     goToRecord(recordId) {
-      uni.navigateTo({ url: '/pages/record/index?id=' + recordId + '&session_id=' + this.sessionId });
+      uni.navigateTo({ url: `/pages/record/index?id=${recordId}&session_id=${this.sessionId}` });
     },
     goToNewRecord() {
-      uni.navigateTo({ url: '/pages/record/index?session_id=' + this.sessionId });
+      uni.navigateTo({ url: `/pages/record/index?session_id=${this.sessionId}` });
     },
     formatTime(timeStr) {
       if (!timeStr) return '';
@@ -226,216 +268,205 @@ export default {
 <style scoped>
 .page {
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-bottom: 200rpx;
+  background: #f3f5f7;
+  padding: 24rpx 24rpx 160rpx;
 }
 
-.form-section, .records-section {
-  padding: 20rpx;
+.form-wrap,
+.info-card,
+.empty-wrap,
+.record-card,
+.context-card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  box-shadow: 0 6rpx 24rpx rgba(15, 23, 42, 0.06);
 }
 
-.section-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 20rpx;
+.form-wrap {
+  padding: 32rpx 28rpx;
+}
+
+.form-title {
   display: block;
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #111827;
 }
 
-.form-group {
+.form-desc {
+  display: block;
+  margin: 12rpx 0 24rpx;
+  font-size: 25rpx;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.context-card {
+  padding: 24rpx;
   margin-bottom: 24rpx;
 }
 
-.label {
-  font-size: 28rpx;
-  color: #333;
-  margin-bottom: 8rpx;
+.context-label {
   display: block;
+  font-size: 24rpx;
+  color: #64748b;
 }
 
-.input {
-  background: #fff;
-  border: 1rpx solid #ddd;
-  border-radius: 12rpx;
-  padding: 20rpx;
+.context-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.context-name {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.field-group {
+  margin-bottom: 24rpx;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 10rpx;
+  font-size: 26rpx;
+  color: #334155;
+}
+
+.picker-box {
+  background: #ffffff;
+  border: 2rpx solid #d7dce3;
+  border-radius: 16rpx;
+  padding: 24rpx;
   font-size: 28rpx;
-}
-
-.picker {
-  background: #fff;
-  border: 1rpx solid #ddd;
-  border-radius: 12rpx;
-  padding: 20rpx;
-  font-size: 28rpx;
-  color: #333;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #1890ff, #36cfc9);
-  color: #fff;
-  border: none;
-  border-radius: 12rpx;
-  font-size: 32rpx;
-  margin-top: 40rpx;
-}
-
-.btn-primary[disabled] {
-  opacity: 0.6;
+  color: #0f172a;
 }
 
 .info-card {
-  background: #fff;
-  margin: 20rpx;
-  border-radius: 16rpx;
   padding: 28rpx;
+}
+
+.info-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16rpx;
+}
+
+.project-title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #111827;
+}
+
+.project-subtitle {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 25rpx;
+  color: #64748b;
+}
+
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-top: 24rpx;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
-  padding: 12rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.info-row:last-child {
-  border-bottom: none;
+  gap: 24rpx;
 }
 
 .info-label {
-  color: #999;
-  font-size: 28rpx;
+  font-size: 25rpx;
+  color: #64748b;
 }
 
 .info-value {
-  color: #333;
-  font-size: 28rpx;
-  font-weight: 500;
+  flex: 1;
+  text-align: right;
+  font-size: 25rpx;
+  color: #0f172a;
 }
 
-.text-blue { color: #1890ff; }
-.text-green { color: #52c41a; }
-
-.empty {
-  text-align: center;
-  padding: 80rpx 40rpx;
+.detail-actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 24rpx;
 }
 
-.empty-text {
-  color: #999;
-  font-size: 28rpx;
+.detail-actions :deep(.t-button) {
+  flex: 1;
+}
+
+.records-section {
+  margin-top: 28rpx;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #111827;
+}
+
+.section-subtitle {
+  font-size: 24rpx;
+  color: #64748b;
+}
+
+.empty-wrap {
+  padding: 36rpx 28rpx;
+}
+
+.empty-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #111827;
+}
+
+.empty-desc {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #64748b;
 }
 
 .record-card {
-  background: #fff;
-  border-radius: 16rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
 }
 
-.record-header {
+.record-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12rpx;
-}
-
-.record-status {
-  padding: 4rpx 16rpx;
-  border-radius: 8rpx;
-}
-
-.record-status.draft {
-  background: #fff7e6;
-}
-
-.record-status.submitted {
-  background: #e6f7ff;
-}
-
-.record-status-text {
-  font-size: 22rpx;
-}
-
-.record-status.draft .record-status-text {
-  color: #fa8c16;
-}
-
-.record-status.submitted .record-status-text {
-  color: #1890ff;
+  margin-bottom: 14rpx;
 }
 
 .record-time {
-  font-size: 24rpx;
-  color: #999;
+  font-size: 23rpx;
+  color: #94a3b8;
 }
 
 .record-summary {
-  font-size: 28rpx;
-  color: #333;
-  display: block;
-  line-height: 1.5;
-}
-
-.record-tags {
-  display: flex;
-  gap: 12rpx;
-  margin-top: 12rpx;
-}
-
-.tag {
-  background: #f0f0f0;
-  border-radius: 6rpx;
-  padding: 4rpx 12rpx;
-}
-
-.tag.severity {
-  background: #fff1f0;
-}
-
-.tag-text {
-  font-size: 22rpx;
-  color: #666;
-}
-
-.tag.severity .tag-text {
-  color: #f5222d;
-}
-
-.end-session {
-  padding: 20rpx;
-}
-
-.btn-end {
-  background: #fff;
-  color: #ff4d4f;
-  border: 1rpx solid #ff4d4f;
-  border-radius: 12rpx;
-  font-size: 28rpx;
-}
-
-.fab-record {
-  position: fixed;
-  bottom: 120rpx;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-  border-radius: 50%;
-  width: 120rpx;
-  height: 120rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(255, 107, 107, 0.5);
-}
-
-.fab-record-icon {
-  font-size: 36rpx;
-}
-
-.fab-record-text {
-  font-size: 20rpx;
-  color: #fff;
-  margin-top: 2rpx;
+  font-size: 27rpx;
+  color: #0f172a;
+  line-height: 1.6;
 }
 </style>

@@ -28,9 +28,10 @@ afterAll(() => {
 describe('Queries - Projects', () => {
   test('createProject and getProjectById', () => {
     const { createProject, getProjectById } = require('../src/models/queries');
-    const p = createProject({ name: '项目A', tech_lead: '张三' });
+    const p = createProject({ name: '项目A', code: 'PA-001', tech_lead: '张三' });
     expect(p.id).toBeDefined();
     expect(p.name).toBe('项目A');
+    expect(p.code).toBe('PA-001');
     const fetched = getProjectById(p.id);
     expect(fetched.tech_lead).toBe('张三');
   });
@@ -45,10 +46,58 @@ describe('Queries - Projects', () => {
 
   test('updateProject', () => {
     const { createProject, updateProject } = require('../src/models/queries');
-    const p = createProject({ name: '旧名' });
-    const updated = updateProject(p.id, { name: '新名', tech_lead: '李四' });
+    const p = createProject({ name: '旧名', code: 'OLD-001' });
+    const updated = updateProject(p.id, { name: '新名', code: 'NEW-001', tech_lead: '李四' });
     expect(updated.name).toBe('新名');
+    expect(updated.code).toBe('NEW-001');
     expect(updated.tech_lead).toBe('李四');
+  });
+
+  test('getAllProjects excludes archived projects by default', () => {
+    const { createProject, archiveProject, getAllProjects } = require('../src/models/queries');
+    const active = createProject({ name: '活跃项目', code: 'ACTIVE-001' });
+    const archived = createProject({ name: '归档项目', code: 'ARCH-001' });
+
+    archiveProject(archived.id);
+
+    const all = getAllProjects();
+    const projectIds = all.map(project => project.id);
+
+    expect(projectIds).toContain(active.id);
+    expect(projectIds).not.toContain(archived.id);
+  });
+
+  test('archiveProject and restoreProject toggle archived_at', () => {
+    const { createProject, archiveProject, restoreProject } = require('../src/models/queries');
+    const project = createProject({ name: '可归档项目', code: 'ARC-RESTORE-001' });
+
+    const archived = archiveProject(project.id);
+    expect(archived.archived_at).toBeTruthy();
+
+    const restored = restoreProject(project.id);
+    expect(restored.archived_at).toBeNull();
+  });
+
+  test('deleteProject cascades to sessions and records', () => {
+    const {
+      createProject,
+      createSession,
+      createRecord,
+      deleteProject,
+      getSessionById,
+      getRecordById,
+      getProjectById,
+    } = require('../src/models/queries');
+    const project = createProject({ name: '删除项目', code: 'DELETE-001' });
+    const session = createSession({ project_id: project.id, tester: '测试员', test_date: '2026-01-01' });
+    const record = createRecord({ session_id: session.id, raw_text: '待删除记录' });
+
+    const deleted = deleteProject(project.id);
+
+    expect(deleted).toBe(true);
+    expect(getProjectById(project.id)).toBeUndefined();
+    expect(getSessionById(session.id)).toBeUndefined();
+    expect(getRecordById(record.id)).toBeUndefined();
   });
 });
 
@@ -88,6 +137,18 @@ describe('Queries - Sessions', () => {
     const s = createSession({ project_id: projectId, tester: 'T', test_date: '2026-01-01' });
     const updated = updateSession(s.id, { status: 'completed' });
     expect(updated.status).toBe('completed');
+  });
+
+  test('deleteSession cascades to records', () => {
+    const { createSession, createRecord, deleteSession, getSessionById, getRecordById } = require('../src/models/queries');
+    const session = createSession({ project_id: projectId, tester: '删除试验', test_date: '2026-02-02' });
+    const record = createRecord({ session_id: session.id, raw_text: '随试验删除' });
+
+    const deleted = deleteSession(session.id);
+
+    expect(deleted).toBe(true);
+    expect(getSessionById(session.id)).toBeUndefined();
+    expect(getRecordById(record.id)).toBeUndefined();
   });
 });
 

@@ -1,9 +1,27 @@
 {
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^t-(.*)": "tdesign-uniapp/$1/$1.vue"
+    }
+  },
   "pages": [
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "试验列表"
+        "navigationBarTitleText": "我的项目"
+      }
+    },
+    {
+      "path": "pages/project-detail/index",
+      "style": {
+        "navigationBarTitleText": "项目详情"
+      }
+    },
+    {
+      "path": "pages/project-archive/index",
+      "style": {
+        "navigationBarTitleText": "归档项目"
       }
     },
     {
@@ -39,7 +57,7 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "试验"
+        "text": "项目"
       },
       {
         "pagePath": "pages/export/index",

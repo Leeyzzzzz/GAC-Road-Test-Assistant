@@ -1,4 +1,3 @@
-const { initDB, getDB } = require('../src/models/database');
 const path = require('path');
 const fs = require('fs');
 
@@ -9,9 +8,15 @@ beforeAll(() => {
   process.env.DB_PATH = TEST_DB_PATH;
   // Clear module cache to use test DB path
   delete require.cache[require.resolve('../src/models/database')];
+  const { initDB } = require('../src/models/database');
+  initDB();
 });
 
 afterAll(() => {
+  try {
+    const { getDB } = require('../src/models/database');
+    getDB().close();
+  } catch (e) { /* ignore */ }
   if (fs.existsSync(TEST_DB_PATH)) {
     fs.unlinkSync(TEST_DB_PATH);
   }

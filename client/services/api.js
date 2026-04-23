@@ -1,12 +1,21 @@
-// 真机调试用电脑内网IP，H5调试可改回 localhost
-const BASE_URL = 'http://192.168.1.10:3000';
+import { API_TIMEOUT, buildApiUrl, ensureApiBaseUrl } from './config';
 
 function request(options) {
   return new Promise((resolve, reject) => {
+    const requestUrl = buildApiUrl(options.url);
+
+    try {
+      ensureApiBaseUrl();
+    } catch (err) {
+      reject(err);
+      return;
+    }
+
     uni.request({
-      url: BASE_URL + options.url,
+      url: requestUrl,
       method: options.method || 'GET',
       data: options.data,
+      timeout: API_TIMEOUT,
       header: {
         'Content-Type': 'application/json',
         ...options.header,
@@ -19,7 +28,7 @@ function request(options) {
         }
       },
       fail: (err) => {
-        reject(new Error(err.errMsg || '网络请求失败'));
+        reject(new Error(err.errMsg || `网络请求失败: ${options.method || 'GET'} ${requestUrl}`));
       },
     });
   });
@@ -37,13 +46,37 @@ function put(url, data) {
   return request({ url, method: 'PUT', data });
 }
 
+function del(url, data) {
+  return request({ url, method: 'DELETE', data });
+}
+
 // ========== Projects ==========
 export function getProjects() {
   return get('/api/projects');
 }
 
+export function getArchivedProjects() {
+  return get('/api/projects/archived');
+}
+
 export function createProject(data) {
   return post('/api/projects', data);
+}
+
+export function updateProject(id, data) {
+  return put(`/api/projects/${id}`, data);
+}
+
+export function archiveProject(id) {
+  return put(`/api/projects/${id}/archive`, {});
+}
+
+export function restoreProject(id) {
+  return put(`/api/projects/${id}/restore`, {});
+}
+
+export function deleteProject(id) {
+  return del(`/api/projects/${id}`);
 }
 
 export function getProject(id) {
@@ -65,6 +98,10 @@ export function getSession(id) {
 
 export function updateSession(id, data) {
   return put(`/api/sessions/${id}`, data);
+}
+
+export function deleteSession(id) {
+  return del(`/api/sessions/${id}`);
 }
 
 // ========== Records ==========
@@ -100,10 +137,18 @@ export function processRecord(recordId, audioUrl) {
 // ========== Upload ==========
 export function uploadFile(filePath) {
   return new Promise((resolve, reject) => {
+    try {
+      ensureApiBaseUrl();
+    } catch (err) {
+      reject(err);
+      return;
+    }
+
     uni.uploadFile({
-      url: BASE_URL + '/api/upload',
+      url: buildApiUrl('/api/upload'),
       filePath,
       name: 'file',
+      timeout: API_TIMEOUT,
       success: (res) => {
         if (res.statusCode === 201) {
           resolve(JSON.parse(res.data));
@@ -117,10 +162,7 @@ export function uploadFile(filePath) {
 }
 
 // ========== Export ==========
-export function exportExcel(sessionId) {
-  return post('/api/export/excel', { session_id: sessionId });
-}
-
-export function exportCsv(sessionId) {
-  return post('/api/export/csv', { session_id: sessionId });
+export function getExportUrl(type, sessionId) {
+  ensureApiBaseUrl();
+  return `${buildApiUrl(`/api/export/${type}`)}?session_id=${sessionId}`;
 }

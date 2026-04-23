@@ -49,9 +49,7 @@
 </template>
 
 <script>
-import { getSessions, getRecords } from '../../services/api';
-
-const BASE_URL = 'http://192.168.1.10:3000';
+import { getExportUrl, getRecords, getSessions } from '../../services/api';
 
 export default {
   data() {
@@ -97,7 +95,7 @@ export default {
     },
     doExport(type) {
       const ext = type === 'excel' ? 'xlsx' : 'csv';
-      const url = `${BASE_URL}/api/export/${type}?session_id=${this.selectedSession}`;
+      const url = getExportUrl(type, this.selectedSession);
 
       // #ifdef H5
       // H5: use <a> tag to trigger browser download

@@ -39,13 +39,14 @@ describe('API - Projects', () => {
     const app = getApp();
     const res = await request(app)
       .post('/api/projects')
-      .send({ name: '测试项目', tech_lead: '张三' });
+      .send({ name: '测试项目', code: 'TEST-001', tech_lead: '张三' });
     expect(res.status).toBe(201);
     expect(res.body.name).toBe('测试项目');
+    expect(res.body.code).toBe('TEST-001');
     expect(res.body.id).toBeDefined();
   });
 
-  test('POST /api/projects rejects missing name', async () => {
+  test('POST /api/projects rejects missing required fields', async () => {
     const app = getApp();
     const res = await request(app)
       .post('/api/projects')
@@ -62,7 +63,7 @@ describe('API - Projects', () => {
 
   test('GET /api/projects/:id returns single project', async () => {
     const app = getApp();
-    const create = await request(app).post('/api/projects').send({ name: 'P' });
+    const create = await request(app).post('/api/projects').send({ name: 'P', code: 'P-001' });
     const res = await request(app).get(`/api/projects/${create.body.id}`);
     expect(res.status).toBe(200);
     expect(res.body.name).toBe('P');
@@ -73,6 +74,36 @@ describe('API - Projects', () => {
     const res = await request(app).get('/api/projects/99999');
     expect(res.status).toBe(404);
   });
+
+  test('GET /api/projects/archived returns archived projects only', async () => {
+    const app = getApp();
+    const active = await request(app).post('/api/projects').send({ name: '活跃项目', code: 'ACTIVE-API-001' });
+    const archived = await request(app).post('/api/projects').send({ name: '归档项目', code: 'ARCH-API-001' });
+
+    await request(app).put(`/api/projects/${archived.body.id}/archive`).send();
+
+    const activeList = await request(app).get('/api/projects');
+    const archivedList = await request(app).get('/api/projects/archived');
+
+    expect(activeList.status).toBe(200);
+    expect(archivedList.status).toBe(200);
+    expect(activeList.body.some(project => project.id === active.body.id)).toBe(true);
+    expect(activeList.body.some(project => project.id === archived.body.id)).toBe(false);
+    expect(archivedList.body.some(project => project.id === archived.body.id)).toBe(true);
+  });
+
+  test('PUT /api/projects/:id/archive and restore update project archive state', async () => {
+    const app = getApp();
+    const create = await request(app).post('/api/projects').send({ name: '项目归档恢复', code: 'ARCHIVE-001' });
+
+    const archived = await request(app).put(`/api/projects/${create.body.id}/archive`).send();
+    expect(archived.status).toBe(200);
+    expect(archived.body.archived_at).toBeTruthy();
+
+    const restored = await request(app).put(`/api/projects/${create.body.id}/restore`).send();
+    expect(restored.status).toBe(200);
+    expect(restored.body.archived_at).toBe(null);
+  });
 });
 
 describe('API - Sessions', () => {
@@ -80,7 +111,7 @@ describe('API - Sessions', () => {
 
   beforeEach(async () => {
     const app = getApp();
-    const res = await request(app).post('/api/projects').send({ name: 'SessionTest' });
+    const res = await request(app).post('/api/projects').send({ name: 'SessionTest', code: `SESSION-${Date.now()}-${Math.random()}` });
     projectId = res.body.id;
   });
 
@@ -144,5 +175,18 @@ describe('API - Sessions', () => {
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('completed');
     expect(res.body.route).toBe('新路线');
+  });
+
+  test('DELETE /api/sessions/:id removes the session', async () => {
+    const app = getApp();
+    const create = await request(app).post('/api/sessions').send({
+      project_id: projectId, tester: 'T', test_date: '2026-01-01',
+    });
+
+    const del = await request(app).delete(`/api/sessions/${create.body.id}`);
+    const fetch = await request(app).get(`/api/sessions/${create.body.id}`);
+
+    expect(del.status).toBe(200);
+    expect(fetch.status).toBe(404);
   });
 });
