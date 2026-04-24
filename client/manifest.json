@@ -11,7 +11,12 @@
     "setting": {
       "urlCheck": false
     },
-    "usingComponents": true
+    "usingComponents": true,
+    "requiredPrivateInfos": [],
+    "permission": {},
+    "optimization": {
+      "subPackages": true
+    }
   },
   "h5": {
     "devServer": {

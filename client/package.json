@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "tdesign-uniapp": "^0.6.3"
+    "@tdesign/uniapp": "^0.8.1"
   }
 }

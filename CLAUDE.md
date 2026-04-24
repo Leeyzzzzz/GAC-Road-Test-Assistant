@@ -73,6 +73,8 @@ pages/
 
 **Conditional compilation:** `// #ifdef H5` / `// #ifndef H5` for platform-specific code (browser download vs uni.downloadFile+uni.openDocument).
 
+**TDesign UI:** `@tdesign/uniapp` ^0.8.1 (npm package). CSS import: `@tdesign/uniapp/common/style/theme/index.css`. Easycom in `pages.json`: `@tdesign/uniapp/$1/$1.vue`. Package uses `exports` field to map requests to `dist/` directory internally — do NOT include `dist/` in import paths.
+
 **Env var loading:** HBuilderX does NOT auto-load `.env`. `vite.config.js` must call `loadEnv(mode, __dirname)` and inject values via `define`. Use `process.env.VITE_*` in code (not `import.meta.env.*` which only works on H5). Client `.env` must be saved as **UTF-8 without BOM** — Windows editors (Notepad) add BOM by default which silently breaks variable names.
 
 **Real device debugging:** Copy `client/.env.example` to `client/.env`, set `VITE_API_BASE_URL` to dev machine's LAN IP, then run `scripts/sync-client-api-env.ps1` or `.cmd` to auto-detect and update the IP.
@@ -103,14 +105,27 @@ VITE_API_TIMEOUT=10000
 
 ## Research & Documentation
 
-When answering library/framework questions, use Context7 to fetch current documentation before falling back to web search. Prefer existing libraries and platform capabilities over custom implementations.
+**CRITICAL — Context7 First Rule:** When implementing code, fixing bugs, or troubleshooting errors related to any library or framework (especially UniApp, TDesign, Vue3, Vite, Express), **ALWAYS use Context7 first** to fetch current official documentation before attempting fixes or falling back to general web search. UniApp's framework behavior is version-sensitive and platform-specific (H5 vs mp-weixin vs App), making official docs essential for correct solutions.
+
+- Use `mcp__context7__resolve-library-id` to find the correct library ID, then `mcp__context7__query-docs` to query documentation
+- For TDesign UniApp issues, the library ID is `/novlan1/tdesign-uniapp`
+- Prefer existing libraries and platform capabilities over custom implementations
 
 ## PRD / Design Doc
 
 The living PRD is at `docs/superpowers/specs/2026-04-09-road-test-assistant-design.md`. User maintains this file directly; Claude reads it when told to update per PRD.
 
+## Business Flow Map
+
+`docs/business-flow-map.md` — complete business flow documentation with all API endpoints, data flows, and known bugs. Updated by scanning actual code state.
+
 ## Known Issues
 
 - ZhiPu ASR has 30-second audio limit; Qwen adapter recommended but not yet switched
-- GPS collection happens before record creation, so GPS data gets discarded
-- No loading indicator during ASR transcription
+- GPS collection happens before record creation, so GPS data is never actually saved (dead code in `collectLocation()`)
+- QwenAdapter ASR likely broken with local files (passes filesystem path instead of base64/URL)
+- `weather` and `gps_address` fields exist in schema but are never populated by any code
+- CSV export has 4 fewer columns than Excel export
+- `POST /api/ai/process-record` and `POST /api/upload/multiple` exist but are never called by frontend
+- No pagination, authentication, or individual record deletion
+- **TDesign font loading error (dev tools only):** `Failed to load font https://tdesign.gtimg.com/icon/x.x.x/fonts/t.woff ERR_CACHE_MISS` is a known WeChat DevTools simulator bug, NOT a real error. Fonts load correctly on real devices. Can be safely ignored during development. See [TDesign issue #3214](https://github.com/Tencent/tdesign-miniprogram/issues/3214).

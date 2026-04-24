@@ -70,7 +70,8 @@ import { archiveProject, deleteProject, getProjects, getSessions } from '../../s
 
 function isSameWeek(dateText) {
   if (!dateText) return false;
-  const source = new Date(dateText);
+  // 兼容 iOS：将 "2026-04-10 23:15:19" 转为 "2026/04/10 23:15:19"
+  const source = new Date(dateText.replace(/-/g, '/'));
   const now = new Date();
   const start = new Date(now);
   start.setHours(0, 0, 0, 0);
