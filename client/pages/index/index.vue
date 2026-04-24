@@ -1,12 +1,14 @@
 <template>
   <view class="page">
     <view class="header">
-      <text class="title">路测助手</text>
-      <text class="subtitle">智驾场地试验管理系统</text>
+      <view class="header-content soft-card">
+        <text class="title">路测助手</text>
+        <text class="subtitle">智驾场地试验管理系统</text>
+      </view>
     </view>
 
     <view class="session-list">
-      <view v-if="sessions.length === 0" class="empty">
+      <view v-if="sessions.length === 0" class="empty soft-card">
         <text class="empty-text">暂无试验记录</text>
         <text class="empty-hint">点击下方按钮创建新试验</text>
       </view>
@@ -14,13 +16,13 @@
       <view
         v-for="session in sessions"
         :key="session.id"
-        class="session-card"
+        class="session-card soft-card"
         @click="goToDetail(session.id)"
       >
         <view class="card-header">
           <text class="card-project">{{ getProjectName(session.project_id) }}</text>
-          <view :class="['card-status', session.status === 'active' ? 'status-active' : 'status-completed']">
-            <text class="status-text">{{ session.status === 'active' ? '进行中' : '已结束' }}</text>
+          <view :class="['pill', session.status === 'active' ? 'bg-dopamine-pink-light text-dopamine-pink' : 'bg-dopamine-mint-light text-dopamine-mint']">
+            <text>{{ session.status === 'active' ? '进行中' : '已结束' }}</text>
           </view>
         </view>
         <view class="card-info">
@@ -36,7 +38,7 @@
       </view>
     </view>
 
-    <view class="fab" @click="goToNewSession">
+    <view class="fab bg-gradient-primary shadow-floaty" @click="goToNewSession">
       <text class="fab-text">+ 新建试验</text>
     </view>
   </view>
@@ -81,97 +83,80 @@ export default {
 
 <style scoped>
 .page {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-bottom: 120rpx;
+  padding-bottom: 140rpx;
 }
 
 .header {
-  background: linear-gradient(135deg, #1890ff, #36cfc9);
-  padding: 60rpx 40rpx 40rpx;
-  color: #fff;
+  padding: 40rpx 30rpx 20rpx;
+}
+
+.header-content {
+  padding: 40rpx 30rpx;
+  background: rgba(255, 255, 255, 0.85); /* Slightly more transparent for header */
 }
 
 .title {
-  font-size: 48rpx;
-  font-weight: bold;
-  color: #fff;
+  font-size: 52rpx;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--dopamine-orange), var(--dopamine-pink));
+  -webkit-background-clip: text;
+  color: transparent;
   display: block;
 }
 
 .subtitle {
   font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.85);
-  margin-top: 8rpx;
+  color: var(--calm-mute);
+  margin-top: 12rpx;
   display: block;
+  font-weight: 500;
 }
 
 .session-list {
-  padding: 20rpx;
+  padding: 0 30rpx;
 }
 
 .empty {
   text-align: center;
-  padding: 120rpx 40rpx;
+  padding: 100rpx 40rpx;
+  margin-top: 20rpx;
 }
 
 .empty-text {
   font-size: 32rpx;
-  color: #999;
+  color: var(--calm-ink);
+  font-weight: bold;
   display: block;
 }
 
 .empty-hint {
   font-size: 26rpx;
-  color: #bbb;
+  color: var(--calm-mute);
   margin-top: 16rpx;
   display: block;
 }
 
 .session-card {
-  background: #fff;
-  border-radius: 16rpx;
-  padding: 28rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  transition: all 0.2s ease;
+}
+
+.session-card:active {
+  transform: scale(0.98);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16rpx;
+  margin-bottom: 20rpx;
 }
 
 .card-project {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-}
-
-.card-status {
-  padding: 4rpx 16rpx;
-  border-radius: 20rpx;
-}
-
-.status-active {
-  background-color: #e6f7ff;
-}
-
-.status-completed {
-  background-color: #f6ffed;
-}
-
-.status-text {
-  font-size: 22rpx;
-}
-
-.status-active .status-text {
-  color: #1890ff;
-}
-
-.status-completed .status-text {
-  color: #52c41a;
+  font-size: 34rpx;
+  font-weight: 800;
+  color: var(--calm-ink);
 }
 
 .card-info {
@@ -180,25 +165,32 @@ export default {
 
 .card-info-text {
   font-size: 26rpx;
-  color: #666;
+  color: var(--calm-mute);
   display: block;
   line-height: 1.6;
 }
 
 .fab {
   position: fixed;
-  bottom: 140rpx;
+  bottom: 60rpx;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #1890ff, #36cfc9);
-  border-radius: 48rpx;
+  border-radius: 999px;
   padding: 24rpx 60rpx;
-  box-shadow: 0 8rpx 24rpx rgba(24, 144, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.fab:active {
+  transform: translateX(-50%) scale(0.95);
 }
 
 .fab-text {
   color: #fff;
   font-size: 32rpx;
-  font-weight: 500;
+  font-weight: 800;
+  letter-spacing: 2rpx;
 }
 </style>

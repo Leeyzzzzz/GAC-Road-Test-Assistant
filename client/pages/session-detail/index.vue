@@ -1,7 +1,7 @@
 <template>
   <view class="page">
     <!-- New Session Form -->
-    <view v-if="isNew" class="form-section">
+    <view v-if="isNew" class="form-section soft-card" style="margin: 30rpx;">
       <text class="section-title">新建试验</text>
 
       <view class="form-group">
@@ -36,7 +36,7 @@
         <input class="input" v-model="form.route" placeholder="如：高速环线" />
       </view>
 
-      <button class="btn-primary" @click="createNewSession" :disabled="submitting">
+      <button class="btn-primary bg-gradient-primary shadow-floaty" @click="createNewSession" :disabled="submitting">
         {{ submitting ? '创建中...' : '创建试验' }}
       </button>
     </view>
@@ -44,7 +44,7 @@
     <!-- Session Detail -->
     <view v-else>
       <!-- Session Info Card -->
-      <view class="info-card">
+      <view class="info-card soft-card">
         <view class="info-row">
           <text class="info-label">测试人员</text>
           <text class="info-value">{{ session.tester }}</text>
@@ -63,36 +63,40 @@
         </view>
         <view class="info-row">
           <text class="info-label">状态</text>
-          <text :class="['info-value', session.status === 'active' ? 'text-blue' : 'text-green']">
-            {{ session.status === 'active' ? '进行中' : '已结束' }}
-          </text>
+          <view :class="['pill', session.status === 'active' ? 'bg-dopamine-pink-light text-dopamine-pink' : 'bg-dopamine-mint-light text-dopamine-mint']">
+            <text>{{ session.status === 'active' ? '进行中' : '已结束' }}</text>
+          </view>
         </view>
       </view>
 
       <!-- Records List -->
       <view class="records-section">
-        <text class="section-title">记录列表 ({{ records.length }})</text>
+        <text class="section-title" style="margin-left: 10rpx;">记录列表 ({{ records.length }})</text>
 
-        <view v-if="records.length === 0" class="empty">
+        <view v-if="records.length === 0" class="empty soft-card">
           <text class="empty-text">暂无记录，点击下方按钮开始录音</text>
         </view>
 
         <view
           v-for="record in records"
           :key="record.id"
-          class="record-card"
+          class="record-card soft-card"
           @click="goToRecord(record.id)"
         >
           <view class="record-header">
-            <view :class="['record-status', record.status === 'draft' ? 'draft' : 'submitted']">
-              <text class="record-status-text">{{ record.status === 'draft' ? '草稿' : '已提交' }}</text>
+            <view :class="['pill', record.status === 'draft' ? 'bg-dopamine-orange-light text-dopamine-orange' : 'bg-dopamine-sky-light text-dopamine-sky']">
+              <text>{{ record.status === 'draft' ? '草稿' : '已提交' }}</text>
             </view>
             <text class="record-time">{{ formatTime(record.created_at) }}</text>
           </view>
           <text class="record-summary">{{ record.summary || record.raw_text || '未处理' }}</text>
           <view v-if="record.problem_type" class="record-tags">
-            <view class="tag"><text class="tag-text">{{ record.problem_type }}</text></view>
-            <view v-if="record.severity" class="tag severity"><text class="tag-text">{{ record.severity }}</text></view>
+            <view class="pill" style="background: rgba(155,93,229,0.1); color: var(--dopamine-purple); font-size: 20rpx; padding: 4rpx 14rpx;">
+              <text>{{ record.problem_type }}</text>
+            </view>
+            <view v-if="record.severity" class="pill bg-dopamine-pink-light text-dopamine-pink" style="font-size: 20rpx; padding: 4rpx 14rpx;">
+              <text>{{ record.severity }}</text>
+            </view>
           </view>
         </view>
       </view>
@@ -104,7 +108,7 @@
     </view>
 
     <!-- Floating Record Button -->
-    <view v-if="!isNew && session.status === 'active'" class="fab-record" @click="goToNewRecord">
+    <view v-if="!isNew && session.status === 'active'" class="fab-record shadow-floaty" @click="goToNewRecord">
       <text class="fab-record-icon">🎙</text>
       <text class="fab-record-text">录音</text>
     </view>
@@ -225,58 +229,59 @@ export default {
 
 <style scoped>
 .page {
-  min-height: 100vh;
-  background-color: #f5f5f5;
   padding-bottom: 200rpx;
 }
 
-.form-section, .records-section {
-  padding: 20rpx;
+.form-section {
+  padding: 40rpx 30rpx;
+}
+.records-section {
+  padding: 0 30rpx 40rpx;
 }
 
 .section-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 20rpx;
+  font-size: 36rpx;
+  font-weight: 800;
+  color: var(--calm-ink);
+  margin-bottom: 30rpx;
   display: block;
 }
 
 .form-group {
-  margin-bottom: 24rpx;
+  margin-bottom: 30rpx;
 }
 
 .label {
   font-size: 28rpx;
-  color: #333;
-  margin-bottom: 8rpx;
+  font-weight: 600;
+  color: var(--calm-ink);
+  margin-bottom: 12rpx;
   display: block;
 }
 
-.input {
-  background: #fff;
-  border: 1rpx solid #ddd;
-  border-radius: 12rpx;
-  padding: 20rpx;
+.input, .picker {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--calm-line);
+  border-radius: 20rpx;
+  padding: 24rpx;
   font-size: 28rpx;
+  color: var(--calm-ink);
+  transition: all 0.2s;
 }
 
-.picker {
+.input:focus {
+  border-color: var(--dopamine-sky);
   background: #fff;
-  border: 1rpx solid #ddd;
-  border-radius: 12rpx;
-  padding: 20rpx;
-  font-size: 28rpx;
-  color: #333;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #1890ff, #36cfc9);
   color: #fff;
   border: none;
-  border-radius: 12rpx;
+  border-radius: 20rpx;
   font-size: 32rpx;
+  font-weight: 800;
   margin-top: 40rpx;
+  padding: 10rpx 0;
 }
 
 .btn-primary[disabled] {
@@ -284,17 +289,16 @@ export default {
 }
 
 .info-card {
-  background: #fff;
-  margin: 20rpx;
-  border-radius: 16rpx;
-  padding: 28rpx;
+  margin: 30rpx;
+  padding: 30rpx;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
-  padding: 12rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1px dashed var(--calm-line);
 }
 
 .info-row:last-child {
@@ -302,140 +306,103 @@ export default {
 }
 
 .info-label {
-  color: #999;
-  font-size: 28rpx;
-}
-
-.info-value {
-  color: #333;
+  color: var(--calm-mute);
   font-size: 28rpx;
   font-weight: 500;
 }
 
-.text-blue { color: #1890ff; }
-.text-green { color: #52c41a; }
+.info-value {
+  color: var(--calm-ink);
+  font-size: 28rpx;
+  font-weight: 600;
+}
 
 .empty {
   text-align: center;
   padding: 80rpx 40rpx;
+  margin-top: 20rpx;
 }
 
 .empty-text {
-  color: #999;
+  color: var(--calm-mute);
   font-size: 28rpx;
+  font-weight: 500;
 }
 
 .record-card {
-  background: #fff;
-  border-radius: 16rpx;
-  padding: 24rpx;
-  margin-bottom: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 24rpx;
+  transition: all 0.2s ease;
+}
+.record-card:active {
+  transform: scale(0.98);
 }
 
 .record-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12rpx;
-}
-
-.record-status {
-  padding: 4rpx 16rpx;
-  border-radius: 8rpx;
-}
-
-.record-status.draft {
-  background: #fff7e6;
-}
-
-.record-status.submitted {
-  background: #e6f7ff;
-}
-
-.record-status-text {
-  font-size: 22rpx;
-}
-
-.record-status.draft .record-status-text {
-  color: #fa8c16;
-}
-
-.record-status.submitted .record-status-text {
-  color: #1890ff;
+  margin-bottom: 16rpx;
 }
 
 .record-time {
   font-size: 24rpx;
-  color: #999;
+  color: var(--calm-mute);
 }
 
 .record-summary {
   font-size: 28rpx;
-  color: #333;
+  color: var(--calm-ink);
   display: block;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .record-tags {
   display: flex;
-  gap: 12rpx;
-  margin-top: 12rpx;
-}
-
-.tag {
-  background: #f0f0f0;
-  border-radius: 6rpx;
-  padding: 4rpx 12rpx;
-}
-
-.tag.severity {
-  background: #fff1f0;
-}
-
-.tag-text {
-  font-size: 22rpx;
-  color: #666;
-}
-
-.tag.severity .tag-text {
-  color: #f5222d;
+  gap: 16rpx;
+  margin-top: 20rpx;
 }
 
 .end-session {
-  padding: 20rpx;
+  padding: 0 30rpx 30rpx;
 }
 
 .btn-end {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.8);
   color: #ff4d4f;
-  border: 1rpx solid #ff4d4f;
-  border-radius: 12rpx;
-  font-size: 28rpx;
+  border: 1px solid #ff4d4f;
+  border-radius: 20rpx;
+  font-size: 30rpx;
+  font-weight: bold;
 }
 
 .fab-record {
   position: fixed;
-  bottom: 120rpx;
+  bottom: 60rpx;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  background: linear-gradient(135deg, var(--dopamine-orange), var(--dopamine-pink));
   border-radius: 50%;
-  width: 120rpx;
-  height: 120rpx;
+  width: 140rpx;
+  height: 140rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(255, 107, 107, 0.5);
+  transition: all 0.2s ease;
+}
+.fab-record:active {
+  transform: translateX(-50%) scale(0.95);
 }
 
 .fab-record-icon {
-  font-size: 36rpx;
+  font-size: 44rpx;
 }
 
 .fab-record-text {
-  font-size: 20rpx;
+  font-size: 24rpx;
+  font-weight: bold;
   color: #fff;
-  margin-top: 2rpx;
+  margin-top: 4rpx;
 }
 </style>

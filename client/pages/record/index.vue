@@ -3,13 +3,13 @@
     <!-- Recording State -->
     <view v-if="!record.id || record.status === 'draft'" class="record-section">
       <!-- Prompt Text -->
-      <view v-if="!isRecording && !record.raw_text" class="prompt-box">
+      <view v-if="!isRecording && !record.raw_text" class="prompt-box soft-card">
         <text class="prompt-text">{{ promptText }}</text>
       </view>
 
       <!-- Big Record Button -->
       <view class="record-btn-area">
-        <view :class="['record-btn', isRecording ? 'recording' : '']" @click="toggleRecording">
+        <view :class="['record-btn', isRecording ? 'recording shadow-floaty bg-gradient-primary' : 'bg-gradient-primary']" @click="toggleRecording">
           <text class="record-btn-icon">{{ isRecording ? '⏹' : '🎙' }}</text>
         </view>
         <text class="record-hint">{{ isRecording ? recordingHint : '点击开始录音' }}</text>
@@ -17,7 +17,7 @@
       </view>
 
       <!-- Transcription Result -->
-      <view v-if="record.raw_text" class="result-card">
+      <view v-if="record.raw_text" class="result-card soft-card">
         <text class="result-label">语音转文字结果</text>
         <textarea
           class="result-textarea"
@@ -28,7 +28,7 @@
       </view>
 
       <!-- AI Extraction Result -->
-      <view v-if="record.summary" class="ai-card">
+      <view v-if="record.summary" class="ai-card soft-card">
         <text class="ai-title">AI 识别结果</text>
         <view class="ai-field">
           <text class="ai-label">问题摘要</text>
@@ -36,12 +36,12 @@
         </view>
         <view class="ai-field">
           <text class="ai-label">问题类型</text>
-          <view class="ai-tag"><text class="ai-tag-text">{{ record.problem_type }}</text></view>
+          <view class="pill bg-dopamine-purple-light text-dopamine-purple"><text>{{ record.problem_type }}</text></view>
         </view>
         <view class="ai-field">
           <text class="ai-label">严重程度</text>
-          <view :class="['ai-tag', 'severity-' + record.severity]">
-            <text class="ai-tag-text">{{ record.severity }}</text>
+          <view class="pill bg-dopamine-pink-light text-dopamine-pink">
+            <text>{{ record.severity }}</text>
           </view>
         </view>
         <view v-if="record.details" class="ai-field">
@@ -51,7 +51,7 @@
       </view>
 
       <!-- GPS Info -->
-      <view v-if="record.gps_lat" class="info-card">
+      <view v-if="record.gps_lat" class="info-card soft-card">
         <text class="info-title">采集信息</text>
         <view class="info-row">
           <text class="info-label">GPS</text>
@@ -64,7 +64,7 @@
       </view>
 
       <!-- Attachments -->
-      <view class="attach-section">
+      <view class="attach-section soft-card">
         <text class="attach-title">附件</text>
         <view class="attach-btns">
           <view class="attach-btn" @click="takePhoto">
@@ -89,7 +89,7 @@
         <button v-if="record.raw_text" class="btn-ai" @click="runAI" :disabled="aiProcessing">
           {{ aiProcessing ? 'AI 处理中...' : 'AI 分析' }}
         </button>
-        <button class="btn-submit" @click="submitRecord" :disabled="!record.raw_text">
+        <button class="btn-submit bg-gradient-secondary shadow-floaty" @click="submitRecord" :disabled="!record.raw_text">
           提交
         </button>
       </view>
@@ -101,11 +101,11 @@
         <text class="submitted-icon">✓</text>
         <text class="submitted-text">已提交</text>
       </view>
-      <view class="result-card">
+      <view class="result-card soft-card">
         <text class="result-label">问题描述</text>
         <text class="result-text">{{ record.summary || record.edited_text || record.raw_text }}</text>
       </view>
-      <view v-if="record.problem_type" class="ai-card">
+      <view v-if="record.problem_type" class="ai-card soft-card">
         <view class="ai-field">
           <text class="ai-label">类型</text>
           <text class="ai-value">{{ record.problem_type }}</text>
@@ -327,22 +327,21 @@ export default {
 
 <style scoped>
 .page {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 20rpx;
+  padding: 30rpx;
   padding-bottom: 200rpx;
 }
 
 .prompt-box {
-  background: linear-gradient(135deg, #e6f7ff, #bae7ff);
-  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.9);
   padding: 30rpx;
   margin-bottom: 30rpx;
+  border-left: 8rpx solid var(--dopamine-sky);
 }
 
 .prompt-text {
   font-size: 28rpx;
-  color: #1890ff;
+  color: var(--calm-ink);
+  font-weight: 500;
   line-height: 1.6;
 }
 
@@ -354,14 +353,18 @@ export default {
 }
 
 .record-btn {
-  width: 160rpx;
-  height: 160rpx;
+  width: 180rpx;
+  height: 180rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8rpx 32rpx rgba(238, 90, 36, 0.4);
+  box-shadow: 0 14rpx 32rpx rgba(255, 107, 139, 0.3);
+  transition: all 0.3s;
+}
+
+.record-btn:active {
+  transform: scale(0.95);
 }
 
 .record-btn.recording {
@@ -369,117 +372,103 @@ export default {
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.6); }
+  50% { transform: scale(1.05); box-shadow: 0 0 0 30rpx rgba(255, 107, 139, 0); }
 }
 
 .record-btn-icon {
-  font-size: 60rpx;
+  font-size: 70rpx;
+  color: white;
 }
 
 .record-hint {
-  font-size: 26rpx;
-  color: #999;
-  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: var(--calm-mute);
+  margin-top: 24rpx;
+  font-weight: 500;
 }
 
 .record-timer {
-  font-size: 40rpx;
-  font-weight: bold;
-  color: #ff4d4f;
-  margin-top: 12rpx;
+  font-size: 48rpx;
+  font-weight: 900;
+  color: var(--dopamine-orange);
+  margin-top: 16rpx;
+  font-variant-numeric: tabular-nums;
 }
 
-.result-card, .ai-card, .info-card {
-  background: #fff;
-  border-radius: 16rpx;
-  padding: 24rpx;
-  margin-bottom: 20rpx;
+.result-card, .ai-card, .info-card, .attach-section {
+  padding: 30rpx;
+  margin-bottom: 24rpx;
 }
 
-.result-label, .ai-title, .info-title {
-  font-size: 26rpx;
-  color: #999;
-  margin-bottom: 12rpx;
+.result-label, .ai-title, .info-title, .attach-title {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: var(--calm-ink);
+  margin-bottom: 16rpx;
   display: block;
 }
 
 .result-textarea {
   width: 100%;
-  min-height: 160rpx;
+  min-height: 200rpx;
   font-size: 28rpx;
   line-height: 1.6;
-  padding: 12rpx;
-  background: #fafafa;
-  border-radius: 8rpx;
+  padding: 20rpx;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--calm-line);
+  border-radius: 16rpx;
+  color: var(--calm-ink);
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.result-textarea:focus {
+  background: #fff;
+  border-color: var(--dopamine-sky);
 }
 
 .result-text {
   font-size: 28rpx;
-  color: #333;
+  color: var(--calm-ink);
   line-height: 1.6;
 }
 
 .ai-field {
-  margin-bottom: 12rpx;
+  margin-bottom: 16rpx;
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: 16rpx;
 }
 
 .ai-label {
-  font-size: 26rpx;
-  color: #999;
+  font-size: 28rpx;
+  color: var(--calm-mute);
   min-width: 120rpx;
+  font-weight: 500;
 }
 
 .ai-value {
   font-size: 28rpx;
-  color: #333;
-}
-
-.ai-tag {
-  background: #f0f0f0;
-  border-radius: 6rpx;
-  padding: 4rpx 16rpx;
-}
-
-.severity-致命 { background: #ffccc7; }
-.severity-严重 { background: #ffa39e; }
-.severity-一般 { background: #fff1f0; }
-.severity-轻微 { background: #f6ffed; }
-
-.ai-tag-text {
-  font-size: 24rpx;
-  color: #666;
+  color: var(--calm-ink);
+  font-weight: 500;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
-  padding: 8rpx 0;
+  padding: 12rpx 0;
 }
 
 .info-label {
-  color: #999;
-  font-size: 26rpx;
+  color: var(--calm-mute);
+  font-size: 28rpx;
 }
 
 .info-value {
-  color: #333;
-  font-size: 26rpx;
-}
-
-.attach-section {
-  margin-bottom: 20rpx;
-}
-
-.attach-title {
+  color: var(--calm-ink);
   font-size: 28rpx;
-  color: #333;
-  font-weight: 500;
-  margin-bottom: 16rpx;
-  display: block;
+  font-weight: 600;
 }
 
 .attach-btns {
@@ -488,68 +477,78 @@ export default {
 }
 
 .attach-btn {
-  background: #fff;
-  border: 1rpx solid #d9d9d9;
-  border-radius: 12rpx;
-  padding: 20rpx 30rpx;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px dashed var(--calm-mute);
+  border-radius: 20rpx;
+  padding: 20rpx 40rpx;
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: 12rpx;
+  transition: all 0.2s;
+}
+
+.attach-btn:active {
+  background: rgba(255, 255, 255, 1);
+  border-color: var(--dopamine-sky);
 }
 
 .attach-btn-icon {
-  font-size: 32rpx;
+  font-size: 36rpx;
 }
 
 .attach-btn-text {
-  font-size: 26rpx;
-  color: #333;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: var(--calm-ink);
 }
 
 .attach-list {
-  margin-top: 16rpx;
+  margin-top: 24rpx;
 }
 
 .attach-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  padding: 16rpx 0;
+  border-bottom: 1px dashed var(--calm-line);
 }
 
 .attach-name {
-  font-size: 26rpx;
-  color: #333;
+  font-size: 28rpx;
+  color: var(--calm-ink);
+  font-weight: 500;
 }
 
 .attach-remove {
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: #ff4d4f;
+  font-weight: bold;
 }
 
 .action-area {
   display: flex;
   gap: 20rpx;
-  margin-top: 30rpx;
+  margin-top: 40rpx;
 }
 
 .btn-ai {
   flex: 1;
-  background: #fff;
-  color: #1890ff;
-  border: 1rpx solid #1890ff;
-  border-radius: 12rpx;
-  font-size: 30rpx;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--dopamine-sky);
+  border: 1px solid var(--dopamine-sky);
+  border-radius: 20rpx;
+  font-size: 32rpx;
+  font-weight: bold;
 }
 
 .btn-submit {
   flex: 1;
-  background: linear-gradient(135deg, #1890ff, #36cfc9);
   color: #fff;
   border: none;
-  border-radius: 12rpx;
-  font-size: 30rpx;
+  border-radius: 20rpx;
+  font-size: 32rpx;
+  font-weight: 800;
 }
 
 .btn-ai[disabled], .btn-submit[disabled] {
@@ -557,24 +556,25 @@ export default {
 }
 
 .submitted-section {
-  padding: 40rpx;
+  padding: 60rpx 40rpx;
   text-align: center;
 }
 
 .submitted-badge {
-  margin: 40rpx 0;
+  margin: 60rpx 0;
 }
 
 .submitted-icon {
-  font-size: 80rpx;
-  color: #52c41a;
+  font-size: 100rpx;
+  color: var(--dopamine-mint);
   display: block;
 }
 
 .submitted-text {
-  font-size: 32rpx;
-  color: #52c41a;
-  margin-top: 16rpx;
+  font-size: 36rpx;
+  font-weight: 900;
+  color: var(--dopamine-mint);
+  margin-top: 20rpx;
   display: block;
 }
 </style>
