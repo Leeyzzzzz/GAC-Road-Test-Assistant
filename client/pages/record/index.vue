@@ -186,7 +186,7 @@ export default {
   },
   computed: {
     themeVars() {
-      return '--td-brand-color: #1E293B; --td-brand-color-light: #E8EAF0; --td-error-color: #DC2626; --td-success-color: #059669; --td-warning-color: #D97706; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
+      return '--td-brand-color: #3B5E6B; --td-brand-color-light: #DEE6EA; --td-brand-color-dark: #1E293B; --td-error-color: #7A4B4B; --td-success-color: #4A6B5E; --td-warning-color: #7A6B4B; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
     },
   },
   onLoad(options) {
@@ -438,7 +438,7 @@ export default {
 }
 .wave-bar {
   width: 8rpx;
-  background: var(--td-brand-color, #1E293B);
+  background: var(--td-brand-color, #3B5E6B);
   border-radius: 8rpx;
   animation: wave-move 0.9s ease-in-out infinite;
 }
@@ -482,7 +482,7 @@ export default {
   width: 180rpx;
   height: 180rpx;
   border-radius: 50%;
-  background: var(--td-brand-color, #1E293B);
+  background: var(--td-brand-color, #3B5E6B);
   display: flex;
   align-items: center;
   justify-content: center;

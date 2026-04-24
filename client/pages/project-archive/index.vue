@@ -64,7 +64,7 @@ export default {
   },
   computed: {
     themeVars() {
-      return '--td-brand-color: #1E293B; --td-brand-color-light: #E8EAF0; --td-error-color: #7A4B4B; --td-success-color: #4A6B5E; --td-warning-color: #7A6B4B; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
+      return '--td-brand-color: #3B5E6B; --td-brand-color-light: #DEE6EA; --td-brand-color-dark: #1E293B; --td-error-color: #7A4B4B; --td-success-color: #4A6B5E; --td-warning-color: #7A6B4B; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
     },
     filteredProjects() {
       if (this.activeFilter === 'all') return this.projects;
@@ -176,7 +176,7 @@ export default {
 }
 .select-link {
   font-size: 26rpx;
-  color: var(--td-brand-color, #1E293B);
+  color: var(--td-brand-color, #3B5E6B);
   font-weight: 500;
 }
 .page-subtitle {
@@ -203,7 +203,7 @@ export default {
   color: var(--td-text-color-secondary, #64748B);
 }
 .filter-tab.active {
-  background: var(--td-brand-color, #1E293B);
+  background: var(--td-brand-color, #3B5E6B);
   color: #ffffff;
 }
 

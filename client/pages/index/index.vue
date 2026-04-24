@@ -1,20 +1,31 @@
 <template>
   <view :style="themeVars" class="page">
-    <!-- Hero: compact title + archive link -->
-    <view class="hero">
-      <view class="hero-row">
-        <text class="page-title">我的项目</text>
-        <text class="archive-link" @click="goToArchived">归档项目 ›</text>
-      </view>
-      <view class="stats-badges">
-        <text class="badge badge-primary">{{ projects.length }} 进行中</text>
-        <text class="badge badge-muted">{{ activeSessionCount }} 试验中</text>
-        <text v-if="currentWeekProjects > 0" class="badge badge-success">+{{ currentWeekProjects }} 本周</text>
+    <!-- Hero: dark gradient card with prominent title -->
+    <view class="hero-card">
+      <view class="hero-bg"></view>
+      <view class="hero-content">
+        <view class="hero-top">
+          <text class="hero-title">我的项目</text>
+          <text class="hero-archive-link" @click="goToArchived">归档项目 ›</text>
+        </view>
+        <view class="hero-count-row">
+          <text class="hero-count-num">{{ projects.length }}</text>
+          <text class="hero-count-label">个项目</text>
+        </view>
+        <view class="hero-stats-row">
+          <text class="hero-stat">{{ projects.length }} 进行中</text>
+          <text class="hero-stat-divider">|</text>
+          <text class="hero-stat">{{ activeSessionCount }} 试验中</text>
+          <text v-if="currentWeekProjects > 0" class="hero-stat-divider">|</text>
+          <text v-if="currentWeekProjects > 0" class="hero-stat hero-stat-highlight">+{{ currentWeekProjects }} 本周</text>
+        </view>
       </view>
     </view>
 
     <!-- Search bar (UI only) -->
-    <view class="search-bar">搜索项目名称或编号…</view>
+    <view class="search-bar">
+      <text class="search-placeholder">搜索项目名称或编号…</text>
+    </view>
 
     <!-- Empty State -->
     <view v-if="projects.length === 0" class="card empty-wrap">
@@ -26,9 +37,9 @@
     <!-- Project List -->
     <view v-else class="project-list">
       <view
-        v-for="project in enrichedProjects"
+        v-for="(project, index) in enrichedProjects"
         :key="project.id"
-        class="card project-card"
+        :class="['card', 'project-card', 'anim-card-' + (index % 3)]"
       >
         <view class="project-card-main" @click="goToProject(project.id)">
           <view class="project-row1">
@@ -73,7 +84,7 @@ export default {
   },
   computed: {
     themeVars() {
-      return '--td-brand-color: #1E293B; --td-brand-color-light: #E8EAF0; --td-error-color: #7A4B4B; --td-success-color: #4A6B5E; --td-warning-color: #7A6B4B; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
+      return '--td-brand-color: #3B5E6B; --td-brand-color-light: #DEE6EA; --td-brand-color-dark: #1E293B; --td-error-color: #7A4B4B; --td-success-color: #4A6B5E; --td-warning-color: #7A6B4B; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
     },
     enrichedProjects() {
       return this.projects.map((project) => {
@@ -185,50 +196,88 @@ export default {
   padding: 24rpx 24rpx 160rpx;
 }
 
-/* ===== Hero ===== */
-.hero {
+/* ===== Hero Card ===== */
+.hero-card {
+  position: relative;
+  border-radius: 28rpx;
+  overflow: hidden;
   margin-bottom: 20rpx;
+  animation: fadeUp 0.4s ease-out;
 }
-.hero-row {
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(135deg, #1E293B 0%, #2A4A5A 50%, #3B5E6B 100%);
+  z-index: 0;
+}
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -15%;
+  width: 320rpx;
+  height: 320rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-content {
+  position: relative;
+  z-index: 1;
+  padding: 36rpx 32rpx;
+}
+.hero-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.page-title {
-  font-size: 36rpx;
+.hero-title {
+  font-size: 48rpx;
   font-weight: 700;
-  color: #111827;
+  color: #ffffff;
+  letter-spacing: 2rpx;
 }
-.archive-link {
+.hero-archive-link {
   font-size: 26rpx;
-  color: var(--td-brand-color, #1E293B);
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 500;
 }
-
-/* ===== Stats Badges ===== */
-.stats-badges {
+.hero-count-row {
   display: flex;
+  align-items: baseline;
   gap: 12rpx;
-  flex-wrap: wrap;
-  margin-top: 14rpx;
+  margin-top: 24rpx;
 }
-.badge {
+.hero-count-num {
+  font-size: 72rpx;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -1rpx;
+  line-height: 1;
+}
+.hero-count-label {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.65);
+}
+.hero-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 2rpx solid rgba(255, 255, 255, 0.1);
+}
+.hero-stat {
   font-size: 24rpx;
-  padding: 6rpx 18rpx;
-  border-radius: 20rpx;
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
 }
-.badge-primary {
-  background: var(--td-brand-color, #1E293B);
+.hero-stat-divider {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.2);
+}
+.hero-stat-highlight {
   color: #ffffff;
-}
-.badge-success {
-  background: var(--td-success-color, #4A6B5E);
-  color: #ffffff;
-}
-.badge-muted {
-  background: #e8eaed;
-  color: var(--td-text-color-secondary, #64748B);
+  font-weight: 600;
 }
 
 /* ===== Search Bar ===== */
@@ -236,10 +285,13 @@ export default {
   background: #ffffff;
   border-radius: 16rpx;
   padding: 20rpx 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.04);
+  margin-bottom: 20rpx;
+  border: 2rpx solid transparent;
+}
+.search-placeholder {
   font-size: 26rpx;
   color: #94a3b8;
-  box-shadow: 0 6rpx 24rpx rgba(15, 23, 42, 0.06);
-  margin-bottom: 20rpx;
 }
 
 /* ===== Shared Card ===== */
@@ -278,6 +330,14 @@ export default {
 /* ===== Project Card ===== */
 .project-card {
   border-left: 6rpx solid var(--td-success-color, #4A6B5E);
+  transition: box-shadow 0.2s, transform 0.2s;
+  animation: fadeUp 0.4s ease-out both;
+}
+.anim-card-0 { animation-delay: 0.05s; }
+.anim-card-1 { animation-delay: 0.1s; }
+.anim-card-2 { animation-delay: 0.15s; }
+.project-card:active {
+  transform: scale(0.99);
 }
 .project-card-main {
   display: flex;
@@ -308,5 +368,11 @@ export default {
 }
 .project-actions :deep(.t-button) {
   flex: 1;
+}
+
+/* ===== Entrance Animation ===== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12rpx); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

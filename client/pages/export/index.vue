@@ -71,7 +71,7 @@ export default {
   },
   computed: {
     themeVars() {
-      return '--td-brand-color: #1E293B; --td-brand-color-light: #E8EAF0; --td-error-color: #DC2626; --td-success-color: #059669; --td-warning-color: #D97706; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
+      return '--td-brand-color: #3B5E6B; --td-brand-color-light: #DEE6EA; --td-brand-color-dark: #1E293B; --td-error-color: #7A4B4B; --td-success-color: #4A6B5E; --td-warning-color: #7A6B4B; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
     },
     sessionNames() {
       return this.sessions.map(s =>
@@ -227,7 +227,7 @@ export default {
   padding: 24rpx;
 }
 .picker-box.picked {
-  border-color: var(--td-brand-color, #1E293B);
+  border-color: var(--td-brand-color, #3B5E6B);
   background: #f1f3f5;
 }
 .picker-text {
