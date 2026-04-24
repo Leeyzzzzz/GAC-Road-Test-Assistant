@@ -1,120 +1,160 @@
 <template>
-  <view class="page">
-    <!-- Recording State -->
-    <view v-if="!record.id || record.status === 'draft'" class="record-section">
-      <!-- Prompt Text -->
-      <view v-if="!isRecording && !record.raw_text" class="prompt-box">
-        <text class="prompt-text">{{ promptText }}</text>
-      </view>
+  <view :style="themeVars" class="page">
+    <!-- ===================== IDLE / DRAFT STATE ===================== -->
+    <template v-if="!record.id || record.status === 'draft'">
+      <!-- Prompt notice - only show when idle -->
+      <t-notice-bar v-if="!isRecording && !record.raw_text" theme="info" :content="promptText" />
 
-      <!-- Big Record Button -->
-      <view class="record-btn-area">
-        <view :class="['record-btn', isRecording ? 'recording' : '']" @click="toggleRecording">
-          <text class="record-btn-icon">{{ isRecording ? '⏹' : '🎙' }}</text>
+      <!-- ===== Recording Hero Card ===== -->
+      <view class="card recording-card">
+        <view class="recording-inner">
+          <!-- Waveform visualization during recording -->
+          <view v-if="isRecording" class="waveform-box">
+            <view v-for="i in 5" :key="i" class="wave-bar" />
+          </view>
+
+          <!-- Microphone button -->
+          <view class="mic-area" @click="toggleRecording">
+            <view class="mic-btn" :class="{ 'is-recording': isRecording }">
+              <text class="mic-icon">{{ isRecording ? '◼' : '◉' }}</text>
+            </view>
+          </view>
+
+          <!-- Timer -->
+          <text class="timer-text">{{ formatDuration(recordingDuration) }}</text>
+
+          <!-- Status hint -->
+          <text class="status-hint">{{ isRecording ? '正在录音，请描述问题…' : (record.raw_text ? '重新录音' : '点击开始录音') }}</text>
         </view>
-        <text class="record-hint">{{ isRecording ? recordingHint : '点击开始录音' }}</text>
-        <text v-if="isRecording" class="record-timer">{{ formatDuration(recordingDuration) }}</text>
       </view>
 
-      <!-- Transcription Result -->
-      <view v-if="record.raw_text" class="result-card">
-        <text class="result-label">语音转文字结果</text>
-        <textarea
-          class="result-textarea"
-          v-model="editableText"
-          placeholder="编辑文字内容..."
+      <!-- ===== Voice Transcription Card ===== -->
+      <view v-if="record.raw_text" class="card section-card">
+        <view class="section-head">
+          <text class="section-head-title">语音转文字</text>
+          <text class="section-head-meta">{{ editableText.length }} 字</text>
+        </view>
+        <t-textarea
+          v-model:value="editableText"
+          placeholder="编辑文字内容…"
           :maxlength="-1"
+          autosize
+          :bordered="false"
+          class="trans-textarea"
         />
       </view>
 
-      <!-- AI Extraction Result -->
-      <view v-if="record.summary" class="ai-card">
-        <text class="ai-title">AI 识别结果</text>
-        <view class="ai-field">
+      <!-- ===== AI Recognition Card ===== -->
+      <view v-if="record.summary" class="card section-card">
+        <view class="section-head">
+          <text class="section-head-title">AI 识别结果</text>
+          <t-tag v-if="aiProcessing" theme="warning" variant="light" size="small">分析中…</t-tag>
+        </view>
+
+        <view class="ai-summary-block">
           <text class="ai-label">问题摘要</text>
           <text class="ai-value">{{ record.summary }}</text>
         </view>
-        <view class="ai-field">
-          <text class="ai-label">问题类型</text>
-          <view class="ai-tag"><text class="ai-tag-text">{{ record.problem_type }}</text></view>
-        </view>
-        <view class="ai-field">
-          <text class="ai-label">严重程度</text>
-          <view :class="['ai-tag', severityClass(record.severity)]">
-            <text class="ai-tag-text">{{ record.severity }}</text>
+
+        <view class="ai-tags-row">
+          <view class="ai-tag-group">
+            <text class="ai-label">问题类型</text>
+            <t-tag theme="primary" variant="light">{{ record.problem_type }}</t-tag>
+          </view>
+          <view class="ai-tag-group">
+            <text class="ai-label">严重程度</text>
+            <t-tag :theme="severityTheme(record.severity)" variant="light">{{ record.severity }}</t-tag>
           </view>
         </view>
-        <view v-if="record.details" class="ai-field">
+
+        <view v-if="record.details" class="ai-detail-block">
           <text class="ai-label">详细信息</text>
           <text class="ai-value">{{ record.details }}</text>
         </view>
       </view>
 
-      <!-- GPS Info -->
-      <view v-if="record.gps_lat" class="info-card">
-        <text class="info-title">采集信息</text>
+      <!-- ===== GPS Info Card ===== -->
+      <view v-if="record.gps_lat" class="card section-card info-card-compact">
         <view class="info-row">
-          <text class="info-label">GPS</text>
-          <text class="info-value">{{ record.gps_lat }}, {{ record.gps_lng }}</text>
+          <text class="info-row-label">GPS 位置</text>
+          <text class="info-row-value">{{ record.gps_lat }}, {{ record.gps_lng }}</text>
         </view>
         <view v-if="record.weather" class="info-row">
-          <text class="info-label">天气</text>
-          <text class="info-value">{{ record.weather }}</text>
+          <text class="info-row-label">天气</text>
+          <text class="info-row-value">{{ record.weather }}</text>
         </view>
       </view>
 
-      <!-- Attachments -->
-      <view class="attach-section">
-        <text class="attach-title">附件</text>
-        <view class="attach-btns">
-          <view class="attach-btn" @click="takePhoto">
-            <text class="attach-btn-icon">📷</text>
-            <text class="attach-btn-text">拍照</text>
-          </view>
-          <view class="attach-btn" @click="chooseVideo">
-            <text class="attach-btn-icon">🎬</text>
-            <text class="attach-btn-text">录像</text>
-          </view>
+      <!-- ===== Attachments Card ===== -->
+      <view class="card section-card">
+        <view class="section-head">
+          <text class="section-head-title">附件</text>
+          <text class="section-head-meta">{{ attachments.length }} 个文件</text>
         </view>
+
+        <view class="attach-actions">
+          <t-button variant="outline" icon="camera" @click="takePhoto">拍照</t-button>
+          <t-button variant="outline" icon="file-add" @click="chooseVideo">录像</t-button>
+        </view>
+
         <view v-if="attachments.length > 0" class="attach-list">
           <view v-for="(att, idx) in attachments" :key="idx" class="attach-item">
-            <text class="attach-name">{{ att.type === 'photo' ? '照片' : '视频' }} {{ idx + 1 }}</text>
-            <text class="attach-remove" @click="removeAttachment(idx)">删除</text>
+            <text class="attach-item-name">{{ att.type === 'photo' ? '照片' : '视频' }} {{ idx + 1 }}</text>
+            <t-tag theme="danger" variant="light" size="small" @click="removeAttachment(idx)">删除</t-tag>
           </view>
         </view>
       </view>
+    </template>
 
-      <!-- Action Buttons -->
-      <view class="action-area">
-        <button v-if="record.raw_text" class="btn-ai" @click="runAI" :disabled="aiProcessing">
-          {{ aiProcessing ? 'AI 处理中...' : 'AI 分析' }}
-        </button>
-        <button class="btn-submit" @click="submitRecord" :disabled="!record.raw_text">
-          提交
-        </button>
-      </view>
-    </view>
-
-    <!-- Submitted State -->
-    <view v-else class="submitted-section">
-      <view class="submitted-badge">
-        <text class="submitted-icon">✓</text>
-        <text class="submitted-text">已提交</text>
-      </view>
-      <view class="result-card">
-        <text class="result-label">问题描述</text>
-        <text class="result-text">{{ record.summary || record.edited_text || record.raw_text }}</text>
-      </view>
-      <view v-if="record.problem_type" class="ai-card">
-        <view class="ai-field">
-          <text class="ai-label">类型</text>
-          <text class="ai-value">{{ record.problem_type }}</text>
+    <!-- ===================== SUBMITTED STATE ===================== -->
+    <template v-else>
+      <view class="success-card">
+        <view class="success-icon-wrap">
+          <text class="success-icon">✓</text>
         </view>
-        <view v-if="record.severity" class="ai-field">
-          <text class="ai-label">严重程度</text>
-          <text class="ai-value">{{ record.severity }}</text>
+        <text class="success-title">提交成功</text>
+        <text class="success-desc">问题记录已保存至试验记录列表</text>
+      </view>
+
+      <view class="card section-card">
+        <text class="submit-summary">{{ record.summary || record.edited_text || record.raw_text }}</text>
+      </view>
+
+      <view v-if="record.problem_type || record.severity" class="card section-card">
+        <view class="ai-tags-row">
+          <view v-if="record.problem_type" class="ai-tag-group">
+            <text class="ai-label">问题类型</text>
+            <t-tag theme="primary" variant="light">{{ record.problem_type }}</t-tag>
+          </view>
+          <view v-if="record.severity" class="ai-tag-group">
+            <text class="ai-label">严重程度</text>
+            <t-tag :theme="severityTheme(record.severity)" variant="light">{{ record.severity }}</t-tag>
+          </view>
         </view>
       </view>
+    </template>
+
+    <!-- ===================== FIXED BOTTOM ACTION BAR ===================== -->
+    <view v-if="!record.id || record.status === 'draft'" class="bottom-bar">
+      <t-button
+        v-if="record.raw_text"
+        variant="outline"
+        :loading="aiProcessing"
+        class="bottom-btn"
+        block
+        @click="runAI"
+      >
+        AI 分析
+      </t-button>
+      <t-button
+        v-if="record.raw_text"
+        theme="primary"
+        class="bottom-btn"
+        block
+        @click="submitRecord"
+      >
+        提交
+      </t-button>
     </view>
   </view>
 </template>
@@ -137,12 +177,17 @@ export default {
       sessionId: null,
       recordId: null,
       promptText: '请描述刚才发生了什么，包括当时的情况和感受',
-      recordingHint: '正在录音...可以说：问题现象、当时车速、路况、天气等',
+      recordingHint: '正在录音…可以说：问题现象、当时车速、路况、天气等',
       recorderManager: null,
       timer: null,
       draftTimer: null,
       audioFilePath: '',
     };
+  },
+  computed: {
+    themeVars() {
+      return '--td-brand-color: #1E293B; --td-brand-color-light: #E8EAF0; --td-error-color: #DC2626; --td-success-color: #059669; --td-warning-color: #D97706; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
+    },
   },
   onLoad(options) {
     this.sessionId = Number(options.session_id);
@@ -316,14 +361,14 @@ export default {
     removeAttachment(idx) {
       this.attachments.splice(idx, 1);
     },
-    severityClass(severity) {
+    severityTheme(severity) {
       const map = {
-        致命: 'severity-critical',
-        严重: 'severity-major',
-        一般: 'severity-normal',
-        轻微: 'severity-minor',
+        致命: 'danger',
+        严重: 'danger',
+        一般: 'warning',
+        轻微: 'default',
       };
-      return map[severity] || '';
+      return map[severity] || 'default';
     },
     formatDuration(seconds) {
       const m = Math.floor(seconds / 60);
@@ -335,255 +380,290 @@ export default {
 </script>
 
 <style scoped>
+/* ===== Page Layout ===== */
 .page {
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 20rpx;
-  padding-bottom: 200rpx;
+  background: #f3f5f7;
+  padding: 24rpx 24rpx 180rpx;
 }
 
-.prompt-box {
-  background: linear-gradient(135deg, #e6f7ff, #bae7ff);
-  border-radius: 16rpx;
-  padding: 30rpx;
-  margin-bottom: 30rpx;
+/* ===== Shared Card ===== */
+.card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  box-shadow: 0 6rpx 24rpx rgba(15, 23, 42, 0.06);
+  padding: 28rpx;
 }
-
-.prompt-text {
-  font-size: 28rpx;
-  color: #1890ff;
-  line-height: 1.6;
-}
-
-.record-btn-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 60rpx 0;
-}
-
-.record-btn {
-  width: 160rpx;
-  height: 160rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8rpx 32rpx rgba(238, 90, 36, 0.4);
-}
-
-.record-btn.recording {
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-.record-btn-icon {
-  font-size: 60rpx;
-}
-
-.record-hint {
-  font-size: 26rpx;
-  color: #999;
+.section-card {
   margin-top: 20rpx;
 }
 
-.record-timer {
-  font-size: 40rpx;
-  font-weight: bold;
-  color: #ff4d4f;
+/* ===== Section Header ===== */
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+.section-head-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #111827;
+}
+.section-head-meta {
+  font-size: 23rpx;
+  color: #94a3b8;
+}
+
+/* ===== Recording Card ===== */
+.recording-card {
+  position: relative;
+  overflow: hidden;
+}
+.recording-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32rpx 0 16rpx;
+}
+
+/* Waveform */
+.waveform-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  height: 80rpx;
+  margin-bottom: 16rpx;
+}
+.wave-bar {
+  width: 8rpx;
+  background: var(--td-brand-color, #1E293B);
+  border-radius: 8rpx;
+  animation: wave-move 0.9s ease-in-out infinite;
+}
+.wave-bar:nth-child(1) {
+  height: 24rpx;
+  animation-delay: 0s;
+}
+.wave-bar:nth-child(2) {
+  height: 44rpx;
+  animation-delay: 0.16s;
+}
+.wave-bar:nth-child(3) {
+  height: 64rpx;
+  animation-delay: 0.32s;
+}
+.wave-bar:nth-child(4) {
+  height: 44rpx;
+  animation-delay: 0.48s;
+}
+.wave-bar:nth-child(5) {
+  height: 24rpx;
+  animation-delay: 0.64s;
+}
+
+@keyframes wave-move {
+  0%, 100% {
+    transform: scaleY(0.6);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleY(1.2);
+    opacity: 1;
+  }
+}
+
+/* Microphone button */
+.mic-area {
+  padding: 12rpx;
+}
+.mic-btn {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50%;
+  background: var(--td-brand-color, #1E293B);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 32rpx rgba(30, 41, 59, 0.35);
+  transition: background 0.3s;
+}
+.mic-btn.is-recording {
+  background: var(--td-error-color, #DC2626);
+  animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+.mic-icon {
+  font-size: 64rpx;
+  color: #ffffff;
+  line-height: 1;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
+  100% { box-shadow: 0 0 0 50rpx rgba(220, 38, 38, 0); }
+}
+
+/* Timer */
+.timer-text {
+  font-size: 56rpx;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--td-text-color-primary, #0F172A);
+  margin-top: 20rpx;
+  letter-spacing: 4rpx;
+}
+
+/* Status hint */
+.status-hint {
+  font-size: 26rpx;
+  color: var(--td-text-color-secondary, #64748B);
   margin-top: 12rpx;
 }
 
-.result-card, .ai-card, .info-card {
-  background: #fff;
-  border-radius: 16rpx;
-  padding: 24rpx;
+/* ===== Transcription Textarea ===== */
+.trans-textarea {
+  font-size: 28rpx;
+  color: var(--td-text-color-primary, #0F172A);
+  line-height: 1.7;
+  --td-textarea-padding: 0;
+}
+
+/* ===== AI Result Card ===== */
+.ai-summary-block {
   margin-bottom: 20rpx;
 }
-
-.result-label, .ai-title, .info-title {
-  font-size: 26rpx;
-  color: #999;
-  margin-bottom: 12rpx;
-  display: block;
+.ai-detail-block {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx solid #f0f2f5;
 }
-
-.result-textarea {
-  width: 100%;
-  min-height: 160rpx;
-  font-size: 28rpx;
-  line-height: 1.6;
-  padding: 12rpx;
-  background: #fafafa;
-  border-radius: 8rpx;
-}
-
-.result-text {
-  font-size: 28rpx;
-  color: #333;
-  line-height: 1.6;
-}
-
-.ai-field {
-  margin-bottom: 12rpx;
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
 .ai-label {
-  font-size: 26rpx;
-  color: #999;
-  min-width: 120rpx;
-}
-
-.ai-value {
-  font-size: 28rpx;
-  color: #333;
-}
-
-.ai-tag {
-  background: #f0f0f0;
-  border-radius: 6rpx;
-  padding: 4rpx 16rpx;
-}
-
-.severity-critical { background: #ffccc7; }
-.severity-major { background: #ffa39e; }
-.severity-normal { background: #fff1f0; }
-.severity-minor { background: #f6ffed; }
-
-.ai-tag-text {
+  display: block;
   font-size: 24rpx;
-  color: #666;
+  color: var(--td-text-color-secondary, #64748B);
+  margin-bottom: 8rpx;
+}
+.ai-value {
+  display: block;
+  font-size: 27rpx;
+  color: var(--td-text-color-primary, #0F172A);
+  line-height: 1.6;
+}
+.ai-tags-row {
+  display: flex;
+  gap: 32rpx;
+}
+.ai-tag-group {
+  flex: 1;
 }
 
+/* ===== GPS Info Compact Card ===== */
+.info-card-compact {
+  padding: 20rpx 28rpx;
+}
 .info-row {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 10rpx;
   padding: 8rpx 0;
 }
-
-.info-label {
-  color: #999;
-  font-size: 26rpx;
+.info-row + .info-row {
+  border-top: 2rpx solid #f0f2f5;
+  margin-top: 8rpx;
+  padding-top: 16rpx;
 }
-
-.info-value {
-  color: #333;
-  font-size: 26rpx;
+.info-row-label {
+  font-size: 24rpx;
+  color: var(--td-text-color-secondary, #64748B);
 }
-
-.attach-section {
-  margin-bottom: 20rpx;
-}
-
-.attach-title {
-  font-size: 28rpx;
-  color: #333;
+.info-row-value {
+  margin-left: auto;
+  font-size: 24rpx;
+  color: var(--td-text-color-primary, #0F172A);
   font-weight: 500;
-  margin-bottom: 16rpx;
-  display: block;
 }
 
-.attach-btns {
+/* ===== Attachments ===== */
+.attach-actions {
   display: flex;
   gap: 20rpx;
 }
-
-.attach-btn {
-  background: #fff;
-  border: 1rpx solid #d9d9d9;
-  border-radius: 12rpx;
-  padding: 20rpx 30rpx;
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
+.attach-actions :deep(.t-button) {
+  flex: 1;
 }
-
-.attach-btn-icon {
-  font-size: 32rpx;
-}
-
-.attach-btn-text {
-  font-size: 26rpx;
-  color: #333;
-}
-
 .attach-list {
   margin-top: 16rpx;
 }
-
 .attach-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  padding: 16rpx 0;
 }
-
-.attach-name {
+.attach-item + .attach-item {
+  border-top: 2rpx solid #f0f2f5;
+}
+.attach-item-name {
   font-size: 26rpx;
-  color: #333;
+  color: var(--td-text-color-primary, #0F172A);
 }
 
-.attach-remove {
+/* ===== Submitted State ===== */
+.success-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 0 40rpx;
+}
+.success-icon-wrap {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: var(--td-success-color, #059669);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24rpx;
+}
+.success-icon {
+  font-size: 56rpx;
+  color: #ffffff;
+  font-weight: 700;
+}
+.success-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #111827;
+}
+.success-desc {
   font-size: 26rpx;
-  color: #ff4d4f;
+  color: var(--td-text-color-secondary, #64748B);
+  margin-top: 10rpx;
+}
+.submit-summary {
+  display: block;
+  font-size: 27rpx;
+  color: var(--td-text-color-primary, #0F172A);
+  line-height: 1.7;
 }
 
-.action-area {
+/* ===== Fixed Bottom Bar ===== */
+.bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   gap: 20rpx;
-  margin-top: 30rpx;
+  padding: 20rpx 24rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom, 20rpx));
+  background: #ffffff;
+  border-top: 2rpx solid #f0f2f5;
+  box-shadow: 0 -4rpx 24rpx rgba(15, 23, 42, 0.06);
+  z-index: 100;
 }
-
-.btn-ai {
+.bottom-btn {
   flex: 1;
-  background: #fff;
-  color: #1890ff;
-  border: 1rpx solid #1890ff;
-  border-radius: 12rpx;
-  font-size: 30rpx;
-}
-
-.btn-submit {
-  flex: 1;
-  background: linear-gradient(135deg, #1890ff, #36cfc9);
-  color: #fff;
-  border: none;
-  border-radius: 12rpx;
-  font-size: 30rpx;
-}
-
-.btn-ai[disabled], .btn-submit[disabled] {
-  opacity: 0.5;
-}
-
-.submitted-section {
-  padding: 40rpx;
-  text-align: center;
-}
-
-.submitted-badge {
-  margin: 40rpx 0;
-}
-
-.submitted-icon {
-  font-size: 80rpx;
-  color: #52c41a;
-  display: block;
-}
-
-.submitted-text {
-  font-size: 32rpx;
-  color: #52c41a;
-  margin-top: 16rpx;
-  display: block;
 }
 </style>
