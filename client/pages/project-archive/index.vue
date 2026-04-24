@@ -3,7 +3,7 @@
     <!-- Hero -->
     <view class="hero">
       <view class="hero-row">
-        <text class="page-title">🗄 归档项目</text>
+        <text class="page-title">归档项目</text>
         <text class="select-link" @click="toggleSelectMode">{{ selectMode ? '完成' : '选择模式 ›' }}</text>
       </view>
       <text class="page-subtitle">历史项目统一收纳在这里，默认不打扰首页主流程。</text>
@@ -64,7 +64,7 @@ export default {
   },
   computed: {
     themeVars() {
-      return '--td-brand-color: #1E293B; --td-brand-color-light: #E8EAF0; --td-error-color: #DC2626; --td-success-color: #059669; --td-warning-color: #D97706; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
+      return '--td-brand-color: #1E293B; --td-brand-color-light: #E8EAF0; --td-error-color: #7A4B4B; --td-success-color: #4A6B5E; --td-warning-color: #7A6B4B; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
     },
     filteredProjects() {
       if (this.activeFilter === 'all') return this.projects;
@@ -199,7 +199,7 @@ export default {
   padding: 6rpx 18rpx;
   border-radius: 20rpx;
   font-weight: 500;
-  background: #e8eaed;
+  background: #E8EAF0;
   color: var(--td-text-color-secondary, #64748B);
 }
 .filter-tab.active {
@@ -241,7 +241,7 @@ export default {
 
 /* ===== Project Card ===== */
 .project-card {
-  border-left: 6rpx solid #94a3b8;
+  border-left: 6rpx solid #7A7B82;
 }
 .project-row {
   display: flex;

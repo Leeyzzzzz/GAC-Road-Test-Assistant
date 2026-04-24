@@ -1,0 +1,212 @@
+{
+  "id": "2026-04-11-000914",
+  "generated_at": "2026-04-10T16:09:14.3688646Z",
+  "language": "zh",
+  "pages": [
+    {
+      "slug": "1-xiang-mu-zong-lan-lu-ce-zhu-shou-shi-shi-yao",
+      "title": "项目总览：路测助手是什么",
+      "file": "1-xiang-mu-zong-lan-lu-ce-zhu-shou-shi-shi-yao.md",
+      "section": "入门指南",
+      "level": "Beginner"
+    },
+    {
+      "slug": "2-kuai-su-da-jian-kai-fa-huan-jing",
+      "title": "快速搭建开发环境",
+      "file": "2-kuai-su-da-jian-kai-fa-huan-jing.md",
+      "section": "入门指南",
+      "level": "Beginner"
+    },
+    {
+      "slug": "3-ji-zhu-zhan-yu-yi-lai-qing-dan",
+      "title": "技术栈与依赖清单",
+      "file": "3-ji-zhu-zhan-yu-yi-lai-qing-dan.md",
+      "section": "入门指南",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "4-cong-xin-jian-shi-yan-dao-ti-jiao-ji-lu-de-wan-zheng-gong-zuo-liu",
+      "title": "从新建试验到提交记录的完整工作流",
+      "file": "4-cong-xin-jian-shi-yan-dao-ti-jiao-ji-lu-de-wan-zheng-gong-zuo-liu.md",
+      "section": "入门指南",
+      "group": "核心业务流程",
+      "level": "Beginner"
+    },
+    {
+      "slug": "5-yu-yin-cai-ji-yu-ai-jie-gou-hua-ti-qu-liu-cheng",
+      "title": "语音采集与 AI 结构化提取流程",
+      "file": "5-yu-yin-cai-ji-yu-ai-jie-gou-hua-ti-qu-liu-cheng.md",
+      "section": "入门指南",
+      "group": "核心业务流程",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "6-shu-ju-dao-chu-excel-csv-liu-cheng",
+      "title": "数据导出（Excel / CSV）流程",
+      "file": "6-shu-ju-dao-chu-excel-csv-liu-cheng.md",
+      "section": "入门指南",
+      "group": "核心业务流程",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "7-qian-hou-duan-fen-chi-jia-gou-zong-lan",
+      "title": "前后端分离架构总览",
+      "file": "7-qian-hou-duan-fen-chi-jia-gou-zong-lan.md",
+      "section": "深入解析",
+      "group": "系统架构与数据模型",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "8-san-ceng-shi-ti-guan-xi-xiang-mu-shi-yan-ji-lu",
+      "title": "三层实体关系：项目 → 试验 → 记录",
+      "file": "8-san-ceng-shi-ti-guan-xi-xiang-mu-shi-yan-ji-lu.md",
+      "section": "深入解析",
+      "group": "系统架构与数据模型",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "9-sqlite-shu-ju-ku-she-ji-yu-ben-di-shi-qu-shi-jian-chuo-ce-lue",
+      "title": "SQLite 数据库设计与本地时区时间戳策略",
+      "file": "9-sqlite-shu-ju-ku-she-ji-yu-ben-di-shi-qu-shi-jian-chuo-ce-lue.md",
+      "section": "深入解析",
+      "group": "系统架构与数据模型",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "10-express-ru-kou-yu-ying-yong-chu-shi-hua",
+      "title": "Express 入口与应用初始化",
+      "file": "10-express-ru-kou-yu-ying-yong-chu-shi-hua.md",
+      "section": "深入解析",
+      "group": "后端核心模块",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "11-restful-api-lu-you-she-ji-projects-sessions-records-upload-export-ai",
+      "title": "RESTful API 路由设计（Projects / Sessions / Records / Upload / Export / AI）",
+      "file": "11-restful-api-lu-you-she-ji-projects-sessions-records-upload-export-ai.md",
+      "section": "深入解析",
+      "group": "后端核心模块",
+      "level": "Advanced"
+    },
+    {
+      "slug": "12-yuan-shi-sql-cha-xun-ceng-wu-orm-de-crud-shi-xian",
+      "title": "原始 SQL 查询层：无 ORM 的 CRUD 实现",
+      "file": "12-yuan-shi-sql-cha-xun-ceng-wu-orm-de-crud-shi-xian.md",
+      "section": "深入解析",
+      "group": "后端核心模块",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "13-multer-wen-jian-shang-chuan-yu-jing-tai-zi-yuan-tuo-guan",
+      "title": "Multer 文件上传与静态资源托管",
+      "file": "13-multer-wen-jian-shang-chuan-yu-jing-tai-zi-yuan-tuo-guan.md",
+      "section": "深入解析",
+      "group": "后端核心模块",
+      "level": "Advanced"
+    },
+    {
+      "slug": "14-ke-cha-ba-gua-pei-qi-mo-shi-baseadapter-chou-xiang-yu-dan-li-xuan-ze-qi",
+      "title": "可插拔适配器模式：BaseAdapter 抽象与单例选择器",
+      "file": "14-ke-cha-ba-gua-pei-qi-mo-shi-baseadapter-chou-xiang-yu-dan-li-xuan-ze-qi.md",
+      "section": "深入解析",
+      "group": "AI 适配器体系",
+      "level": "Advanced"
+    },
+    {
+      "slug": "15-zhi-pu-glm-gua-pei-qi-shi-xian-asr-jie-gou-hua-ti-qu",
+      "title": "智谱 GLM 适配器实现（ASR + 结构化提取）",
+      "file": "15-zhi-pu-glm-gua-pei-qi-shi-xian-asr-jie-gou-hua-ti-qu.md",
+      "section": "深入解析",
+      "group": "AI 适配器体系",
+      "level": "Advanced"
+    },
+    {
+      "slug": "16-tong-yi-qian-wen-gua-pei-qi-shi-xian-yu-dui-bi",
+      "title": "通义千问适配器实现与对比",
+      "file": "16-tong-yi-qian-wen-gua-pei-qi-shi-xian-yu-dui-bi.md",
+      "section": "深入解析",
+      "group": "AI 适配器体系",
+      "level": "Advanced"
+    },
+    {
+      "slug": "17-mock-gua-pei-qi-wu-api-key-shi-de-jiang-ji-fang-an",
+      "title": "Mock 适配器：无 API Key 时的降级方案",
+      "file": "17-mock-gua-pei-qi-wu-api-key-shi-de-jiang-ji-fang-an.md",
+      "section": "深入解析",
+      "group": "AI 适配器体系",
+      "level": "Beginner"
+    },
+    {
+      "slug": "18-uniapp-vue3-xiang-mu-jie-gou-yu-ye-mian-lu-you-pei-zhi",
+      "title": "UniApp + Vue3 项目结构与页面路由配置",
+      "file": "18-uniapp-vue3-xiang-mu-jie-gou-yu-ye-mian-lu-you-pei-zhi.md",
+      "section": "深入解析",
+      "group": "前端 UniApp 页面体系",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "19-shou-ye-shi-yan-lie-biao-yu-xiang-mu-guan-li",
+      "title": "首页：试验列表与项目管理",
+      "file": "19-shou-ye-shi-yan-lie-biao-yu-xiang-mu-guan-li.md",
+      "section": "深入解析",
+      "group": "前端 UniApp 页面体系",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "20-he-xin-lu-yin-ye-lu-yin-shang-chuan-asr-ai-fen-xi-de-wan-zheng-shi-xian",
+      "title": "核心录音页：录音 → 上传 → ASR → AI 分析的完整实现",
+      "file": "20-he-xin-lu-yin-ye-lu-yin-shang-chuan-asr-ai-fen-xi-de-wan-zheng-shi-xian.md",
+      "section": "深入解析",
+      "group": "前端 UniApp 页面体系",
+      "level": "Advanced"
+    },
+    {
+      "slug": "21-shi-yan-xiang-qing-ye-shuang-mo-shi-xin-jian-cha-kan-yu-ji-lu-guan-li",
+      "title": "试验详情页：双模式（新建 / 查看）与记录管理",
+      "file": "21-shi-yan-xiang-qing-ye-shuang-mo-shi-xin-jian-cha-kan-yu-ji-lu-guan-li.md",
+      "section": "深入解析",
+      "group": "前端 UniApp 页面体系",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "22-dao-chu-ye-tiao-jian-bian-yi-shi-xian-h5-yu-yuan-sheng-ping-tai-de-chai-yi-hua-xia-zai",
+      "title": "导出页：条件编译实现 H5 与原生平台的差异化下载",
+      "file": "22-dao-chu-ye-tiao-jian-bian-yi-shi-xian-h5-yu-yuan-sheng-ping-tai-de-chai-yi-hua-xia-zai.md",
+      "section": "深入解析",
+      "group": "前端 UniApp 页面体系",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "23-qian-duan-api-fu-wu-ceng-feng-zhuang-yu-qing-qiu-dai-li-ji-zhi",
+      "title": "前端 API 服务层封装与请求代理机制",
+      "file": "23-qian-duan-api-fu-wu-ceng-feng-zhuang-yu-qing-qiu-dai-li-ji-zhi.md",
+      "section": "深入解析",
+      "group": "前端 UniApp 页面体系",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "24-jest-supertest-ce-shi-ce-lue-yu-shu-ju-ku-ge-chi-fang-an",
+      "title": "Jest + Supertest 测试策略与数据库隔离方案",
+      "file": "24-jest-supertest-ce-shi-ce-lue-yu-shu-ju-ku-ge-chi-fang-an.md",
+      "section": "深入解析",
+      "group": "测试与质量保障",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "25-huan-jing-bian-liang-pei-zhi-yu-api-key-guan-li",
+      "title": "环境变量配置与 API Key 管理",
+      "file": "25-huan-jing-bian-liang-pei-zhi-yu-api-key-guan-li.md",
+      "section": "深入解析",
+      "group": "部署与运维",
+      "level": "Beginner"
+    },
+    {
+      "slug": "26-zhen-ji-diao-shi-yu-hbuilderx-kua-duan-yun-xing-zhi-nan",
+      "title": "真机调试与 HBuilderX 跨端运行指南",
+      "file": "26-zhen-ji-diao-shi-yu-hbuilderx-kua-duan-yun-xing-zhi-nan.md",
+      "section": "深入解析",
+      "group": "部署与运维",
+      "level": "Intermediate"
+    }
+  ]
+}

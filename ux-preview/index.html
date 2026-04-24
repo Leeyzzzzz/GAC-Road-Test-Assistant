@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>路测助手 · UX 优化方案</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --primary: #1E293B;
+    --primary-light: #E8EAF0;
+    --accent: #2563EB;
+    --success: #059669;
+    --danger: #DC2626;
+    --warning: #D97706;
+    --bg: #F3F5F7;
+    --card: #FFFFFF;
+    --text: #0F172A;
+    --text-secondary: #64748B;
+    --border: #E4E7EB;
+    --shadow: 0 6rpx 24rpx rgba(15,23,42,0.06);
+    --radius: 24rpx;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding-bottom: 60px;
+  }
+
+  /* Header */
+  .page-header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 20px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .page-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .page-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  /* Section */
+  .section {
+    margin: 24px 16px 32px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .badge {
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--danger);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .section-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+
+  /* Problem List */
+  .problem-list { display: flex; flex-direction: column; gap: 12px; }
+  .problem-item {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 20px;
+    border-left: 4px solid var(--danger);
+  }
+  .problem-item.severity-2 { border-left-color: var(--warning); }
+  .problem-item.severity-3 { border-left-color: #94A3B8; }
+  .problem-item .p-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .problem-item .p-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .problem-item .p-meta {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .p-meta .tag {
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 2px 10px;
+    border-radius: 6px;
+  }
+  .p-meta .tag.danger { background: #FEE2E2; color: var(--danger); }
+  .p-meta .tag.warning { background: #FEF3C7; color: var(--warning); }
+
+  /* Before/After Cards */
+  .ba-grid { display: flex; flex-direction: column; gap: 16px; }
+  .ba-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .ba-card .ba-label {
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ba-card .ba-label.before { color: var(--danger); }
+  .ba-card .ba-label.after { color: var(--success); }
+
+  /* Phone Mock */
+  .phone-wrap {
+    margin: 0;
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding: 12px 0;
+    -webkit-overflow-scrolling: touch;
+  }
+  .phone-frame {
+    min-width: 280px;
+    max-width: 280px;
+    background: var(--card);
+    border-radius: 32px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    overflow: hidden;
+    border: 2px solid #E2E8F0;
+  }
+  .phone-status {
+    background: var(--primary);
+    color: #fff;
+    padding: 10px 20px 6px;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .phone-content {
+    padding: 16px;
+    min-height: 500px;
+  }
+  .phone-label {
+    text-align: center;
+    font-size: 12px;
+    margin-top: 8px;
+    color: var(--text-secondary);
+  }
+
+  /* Phone inner components */
+  .mock-hero { margin-bottom: 16px; }
+  .mock-hero h2 { font-size: 20px; font-weight: 700; }
+  .mock-hero p { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+  .mock-stats {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .mock-stat {
+    flex: 1;
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .mock-stat .num {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .mock-stat .lbl {
+    display: block;
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .mock-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .mock-header-row h3 {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .mock-header-row .link {
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  .mock-card {
+    background: var(--bg);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .mock-card .row1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+  .mock-card .name {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .mock-card .code {
+    font-size: 11px;
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 1px 8px;
+    border-radius: 4px;
+  }
+  .mock-card .meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .mock-card .tags {
+    display: flex;
+    gap: 6px;
+    font-size: 11px;
+  }
+  .mock-card .tags span {
+    background: var(--card);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--text-secondary);
+  }
+
+  .mock-card-2 {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .mock-card-2 .left .title {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .mock-card-2 .left .sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .mock-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .mock-btn {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-secondary);
+  }
+  .mock-btn.danger { color: var(--danger); border-color: #FECACA; }
+  .mock-btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .mock-btn.accent { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .mock-fab {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 16px rgba(30,41,59,0.3);
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+  }
+
+  .mock-search {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  .mock-date-group { margin-bottom: 14px; }
+  .mock-date-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    padding-left: 4px;
+  }
+
+  /* Detail page mocks */
+  .mock-detail-hero {
+    background: var(--primary);
+    color: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .mock-detail-hero .name {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .mock-detail-hero .code {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: 2px;
+  }
+  .mock-detail-hero .stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+    font-size: 12px;
+  }
+  .mock-detail-hero .stats span {
+    opacity: 0.9;
+  }
+  .mock-detail-hero .stats strong {
+    font-weight: 700;
+    opacity: 1;
+    font-size: 16px;
+  }
+
+  .mock-menu-dots {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #fff;
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* Export page */
+  .mock-export-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .mock-export-card .sel {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-secondary);
+  }
+  .mock-export-card .sel.selected { color: var(--text); }
+
+  /* Comparison tables */
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .cmp-table th, .cmp-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .cmp-table th { background: var(--primary); color: #fff; font-weight: 600; font-size: 12px; }
+  .cmp-table .issue { color: var(--danger); }
+  .cmp-table .fix { color: var(--success); }
+  .cmp-table tr:last-child td { border-bottom: none; }
+
+  .summary-box {
+    background: linear-gradient(135deg, var(--primary), #0F172A);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 16px;
+  }
+  .summary-box h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .summary-box ul {
+    list-style: none;
+    padding: 0;
+  }
+  .summary-box li {
+    padding: 8px 0;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .summary-box li:last-child { border-bottom: none; }
+  .summary-box li::before { content: "→"; opacity: 0.6; }
+
+  /* Page description */
+  .page-desc {
+    margin: 16px;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .page-desc strong { color: var(--primary); }
+
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>路测助手 · UX 优化方案</h1>
+  <p>基于 UI/UX Pro Max 设计系统审查 · 5个页面分析 · 提供移动端HTML预览</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- 1. 首页 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-title">01 · 项目首页 <span class="badge">3 issues</span></div>
+  <div class="section-sub">pages/index/index.vue — 项目列表首页</div>
+
+  <table class="cmp-table">
+    <tr>
+      <th width="25%">问题</th>
+      <th width="40%">现状</th>
+      <th width="35%">优化方案</th>
+    </tr>
+    <tr>
+      <td class="issue">信息密度低</td>
+      <td>Hero区占大量空间只放标题+副标题；3个统计数字独占整行</td>
+      <td class="fix">Hero紧凑化，统计改成inline badges，节省空间展示更多项目</td>
+    </tr>
+    <tr>
+      <td class="issue">操作区域混乱</td>
+      <td>项目卡片底部3个按钮（编辑/归档/删除）并列，视觉冲突</td>
+      <td class="fix">减少为1-2个关键按钮，次要操作放入⋯更多菜单</td>
+    </tr>
+    <tr>
+      <td class="issue">缺少快速筛选</td>
+      <td>只有顶部一个"归档项目"入口，无法搜索/筛选</td>
+      <td class="fix">增加搜索栏，按状态/日期快速筛选</td>
+    </tr>
+  </table>
+
+  <div class="section-title" style="margin-top:24px">前后对比预览</div>
+  <div class="phone-wrap">
+    <!-- Before -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="phone-content">
+          <div class="mock-hero">
+            <h2>我的项目</h2>
+            <p>按项目管理路试试验</p>
+          </div>
+          <div class="mock-stats">
+            <div class="mock-stat"><span class="num">3</span><span class="lbl">进行中</span></div>
+            <div class="mock-stat"><span class="num">5</span><span class="lbl">试验中</span></div>
+            <div class="mock-stat"><span class="num">1</span><span class="lbl">本周新增</span></div>
+          </div>
+          <div style="text-align:right;margin-bottom:10px"><span style="font-size:12px;color:var(--accent)">归档项目 ›</span></div>
+          <div class="mock-card">
+            <div class="row1"><span class="name">GAC 项目</span><span class="code">GAC-001</span></div>
+            <div class="meta">技术负责人：张三</div>
+            <div class="tags"><span>试验 6</span><span>进行中 2</span></div>
+            <div class="mock-actions">
+              <div class="mock-btn">编辑</div>
+              <div class="mock-btn">归档</div>
+              <div class="mock-btn danger">删除</div>
+            </div>
+          </div>
+          <div class="mock-card">
+            <div class="row1"><span class="name">BYD 项目</span><span class="code">BYD-003</span></div>
+            <div class="meta">技术负责人：李四</div>
+            <div class="tags"><span>试验 3</span><span>进行中 1</span></div>
+            <div class="mock-actions">
+              <div class="mock-btn">编辑</div>
+              <div class="mock-btn">归档</div>
+              <div class="mock-btn danger">删除</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">⬅ 优化前</div>
+    </div>
+
+    <!-- After -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="phone-content">
+          <div class="mock-header-row">
+            <h2 style="font-size:20px">我的项目</h2>
+            <span style="font-size:12px;color:var(--accent)">归档 ›</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+            <span style="font-size:12px;background:var(--primary);color:#fff;padding:3px 10px;border-radius:12px">3 进行中</span>
+            <span style="font-size:12px;background:var(--primary-light);padding:3px 10px;border-radius:12px">5 试验中</span>
+            <span style="font-size:12px;background:var(--success);color:#fff;padding:3px 10px;border-radius:12px">+1 本周</span>
+          </div>
+          <div class="mock-search">🔍 搜索项目名称或编号…</div>
+          <div class="mock-card" style="border-left:3px solid var(--success)">
+            <div class="row1">
+              <span class="name">GAC 项目</span>
+              <div style="display:flex;gap:4px">
+                <span class="code">GAC-001</span>
+                <span style="font-size:16px;color:var(--text-secondary);cursor:pointer">⋯</span>
+              </div>
+            </div>
+            <div class="meta">张三 · 6试验 · 2进行中 · 最近：2026-04-20</div>
+            <div class="tags"><span>📍 高速环线</span><span>📊 80% 完成</span></div>
+            <div class="mock-actions" style="margin-top:10px">
+              <div class="mock-btn primary">查看项目</div>
+              <div class="mock-btn">⋮ 更多</div>
+            </div>
+          </div>
+          <div class="mock-card" style="border-left:3px solid var(--warning)">
+            <div class="row1">
+              <span class="name">BYD 项目</span>
+              <div style="display:flex;gap:4px">
+                <span class="code">BYD-003</span>
+                <span style="font-size:16px;color:var(--text-secondary);cursor:pointer">⋯</span>
+              </div>
+            </div>
+            <div class="meta">李四 · 3试验 · 1进行中 · 最近：2026-04-18</div>
+            <div class="mock-actions" style="margin-top:10px">
+              <div class="mock-btn primary">查看项目</div>
+              <div class="mock-btn">⋮ 更多</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">⬅ 优化后</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ============================================================ -->
+<!-- 2. 项目详情 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-title">02 · 项目详情 <span class="badge">3 issues</span></div>
+  <div class="section-sub">pages/project-detail/index.vue — 项目详情 + 试验列表</div>
+
+  <table class="cmp-table">
+    <tr>
+      <th width="25%">问题</th>
+      <th width="40%">现状</th>
+      <th width="35%">优化方案</th>
+    </tr>
+    <tr>
+      <td class="issue">操作布局散乱</td>
+      <td>3个按钮在卡片底部（编辑/归档/删除），试验卡片又有2个</td>
+      <td class="fix">项目操作移到右上角"⋯"菜单，试验卡片用滑动操作或长按菜单</td>
+    </tr>
+    <tr>
+      <td class="issue">日期分组视觉弱</td>
+      <td>日期组只有文本标题，跟试验卡片区分不明显</td>
+      <td class="fix">日期分组用色块/分割线+图标，增强视觉层次</td>
+    </tr>
+    <tr>
+      <td class="issue">表单缺少实时反馈</td>
+      <td>提交时才校验必填字段, 无保存草稿指示</td>
+      <td class="fix">输入框实时校验，footer显示"自动保存中"</td>
+    </tr>
+  </table>
+
+  <div class="section-title" style="margin-top:24px">前后对比预览</div>
+  <div class="phone-wrap">
+    <!-- Before -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="phone-content">
+          <div style="background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><div style="font-size:18px;font-weight:700">GAC 项目</div><div style="font-size:12px;color:var(--text-secondary)">技术负责人：张三</div></div>
+              <span class="code">GAC-001</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <span style="font-size:11px;padding:2px 8px;background:var(--primary-light);border-radius:4px">试验 6</span>
+              <span style="font-size:11px;padding:2px 8px;background:#D1FAE5;border-radius:4px;color:var(--success)">进行中 2</span>
+            </div>
+            <div class="mock-actions">
+              <div class="mock-btn">编辑</div>
+              <div class="mock-btn">归档</div>
+              <div class="mock-btn danger">删除</div>
+            </div>
+          </div>
+          <div class="mock-date-label">2026-04-20</div>
+          <div style="background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:8px">
+            <div class="row1"><span class="name">张三</span><span style="font-size:11px;background:#D1FAE5;color:var(--success);padding:1px 8px;border-radius:4px">进行中</span></div>
+            <div class="meta">车辆：沪A12345</div>
+            <div class="mock-actions" style="margin-top:8px">
+              <div class="mock-btn">编辑</div>
+              <div class="mock-btn danger">删除</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">⬅ 优化前</div>
+    </div>
+
+    <!-- After -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="phone-content">
+          <div class="mock-detail-hero">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><div class="name">GAC 项目</div><div class="code">GAC-001 · 张三</div></div>
+              <div class="mock-menu-dots">⋯</div>
+            </div>
+            <div class="stats">
+              <div><strong>6</strong><br>总试验</div>
+              <div><strong>2</strong><br>进行中</div>
+              <div><strong>48</strong><br>总记录</div>
+              <div><strong>2026-04</strong><br>最近活动</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <span style="font-size:12px;background:var(--primary);color:#fff;padding:4px 12px;border-radius:8px">全部</span>
+            <span style="font-size:12px;background:var(--bg);padding:4px 12px;border-radius:8px">进行中</span>
+            <span style="font-size:12px;background:var(--bg);padding:4px 12px;border-radius:8px">已结束</span>
+          </div>
+          <div class="mock-date-group">
+            <div class="mock-date-label">📅 2026-04-20 · 2条试验</div>
+            <div class="mock-card-2">
+              <div class="left"><div class="title">张三 · 高速环线</div><div class="sub">沪A12345</div></div>
+              <span style="font-size:11px;background:#D1FAE5;color:var(--success);padding:2px 8px;border-radius:6px">进行中</span>
+            </div>
+            <div class="mock-card-2">
+              <div class="left"><div class="title">李四 · 城市道路</div><div class="sub">沪B67890</div></div>
+              <span style="font-size:11px;background:#D1FAE5;color:var(--success);padding:2px 8px;border-radius:6px">进行中</span>
+            </div>
+          </div>
+          <div class="mock-date-group">
+            <div class="mock-date-label">📅 2026-04-18 · 1条试验</div>
+            <div class="mock-card-2" style="opacity:0.7">
+              <div class="left"><div class="title">张三 · 夜间测试</div><div class="sub">沪A12345</div></div>
+              <span style="font-size:11px;background:var(--bg);color:var(--text-secondary);padding:2px 8px;border-radius:6px">已结束</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">⬅ 优化后</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ============================================================ -->
+<!-- 3. 试验详情 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-title">03 · 试验详情 <span class="badge">2 issues</span></div>
+  <div class="section-sub">pages/session-detail/index.vue — 试验概览 + 记录列表</div>
+
+  <table class="cmp-table">
+    <tr>
+      <th width="25%">问题</th>
+      <th width="40%">现状</th>
+      <th width="35%">优化方案</th>
+    </tr>
+    <tr>
+      <td class="issue">记录卡片太单薄</td>
+      <td>只显示状态tag+时间戳+摘要文本，缺少类型/严重度可视标识</td>
+      <td class="fix">卡片增加左侧色条指示严重度，显示问题类型tag，缩略信息更丰富</td>
+    </tr>
+    <tr>
+      <td class="issue">录音FAB可能遮挡</td>
+      <td>t-fab固定在底部，但页面没有考虑底部间距</td>
+      <td class="fix">FAB调整位置，内容区预留底部padding</td>
+    </tr>
+  </table>
+
+  <div class="section-title" style="margin-top:24px">前后对比预览</div>
+  <div class="phone-wrap">
+    <!-- Before -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="phone-content">
+          <div style="background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between"><span style="font-size:16px;font-weight:700">张三</span><span style="font-size:11px;background:#D1FAE5;color:var(--success);padding:2px 8px;border-radius:4px">进行中</span></div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:8px">
+              <div>2026-04-20</div>
+              <div>沪A12345 · 高速环线</div>
+            </div>
+            <div class="mock-actions">
+              <div class="mock-btn">编辑试验</div>
+              <div class="mock-btn danger">结束试验</div>
+            </div>
+          </div>
+          <div class="mock-header-row"><h3>记录列表</h3><span style="font-size:12px;color:var(--text-secondary)">4条</span></div>
+          <div style="background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:11px;background:#FEF3C7;color:var(--warning);padding:1px 8px;border-radius:4px">草稿</span>
+              <span style="font-size:11px;color:var(--text-secondary)">2026-04-20 14:30</span>
+            </div>
+            <div style="font-size:13px;color:var(--text-secondary)">ACC跟车异常，前车切入时制动过晚</div>
+          </div>
+          <div style="background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:14px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:11px;background:#D1FAE5;color:var(--success);padding:1px 8px;border-radius:4px">已提交</span>
+              <span style="font-size:11px;color:var(--text-secondary)">2026-04-20 13:15</span>
+            </div>
+            <div style="font-size:13px;color:var(--text-secondary)">LKA在弯道中偏离车道线</div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">⬅ 优化前</div>
+    </div>
+
+    <!-- After -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="phone-content">
+          <div style="background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><span style="font-size:17px;font-weight:700">张三</span>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:6px">
+                2026-04-20 · 沪A12345 · 高速环线
+              </div></div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:11px;background:#D1FAE5;color:var(--success);padding:2px 10px;border-radius:6px">进行中</span>
+                <span style="font-size:16px;color:var(--text-secondary);cursor:pointer">⋯</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:16px;margin-top:14px;font-size:12px;color:var(--text-secondary)">
+              <div><strong style="color:var(--text);font-size:18px">4</strong> 总记录</div>
+              <div><strong style="color:var(--text);font-size:18px">3</strong> 已提交</div>
+              <div><strong style="color:var(--text);font-size:18px">1</strong> 草稿</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:14px;font-weight:700">记录列表</div>
+            <div style="display:flex;gap:6px;font-size:12px">
+              <span style="background:var(--primary);color:#fff;padding:2px 10px;border-radius:6px">全部</span>
+              <span style="background:var(--bg);padding:2px 10px;border-radius:6px">草稿</span>
+            </div>
+          </div>
+          <div class="mock-card-2" style="border-left:3px solid var(--danger);margin-bottom:8px">
+            <div class="left">
+              <div class="title">ACC跟车异常，前车切入时制动过晚</div>
+              <div class="sub" style="display:flex;gap:6px;margin-top:4px">
+                <span style="font-size:10px;background:#FEE2E2;color:var(--danger);padding:1px 6px;border-radius:3px">严重</span>
+                <span style="font-size:10px;background:var(--primary-light);padding:1px 6px;border-radius:3px">功能异常</span>
+              </div>
+            </div>
+            <span style="font-size:10px;color:var(--text-secondary)">14:30</span>
+          </div>
+          <div class="mock-card-2" style="border-left:3px solid var(--warning);margin-bottom:8px">
+            <div class="left">
+              <div class="title">LKA在弯道中偏离车道线</div>
+              <div class="sub" style="display:flex;gap:6px;margin-top:4px">
+                <span style="font-size:10px;background:#FEF3C7;color:var(--warning);padding:1px 6px;border-radius:3px">一般</span>
+                <span style="font-size:10px;background:var(--primary-light);padding:1px 6px;border-radius:3px">性能不足</span>
+              </div>
+            </div>
+            <span style="font-size:10px;color:var(--text-secondary)">13:15</span>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">⬅ 优化后</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ============================================================ -->
+<!-- 4. 导出页面 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-title">04 · 数据导出 <span class="badge" style="background:var(--danger)">5 issues</span></div>
+  <div class="section-sub">pages/export/index.vue — 最需要改版的页面</div>
+
+  <table class="cmp-table">
+    <tr>
+      <th width="25%">问题</th>
+      <th width="40%">现状</th>
+      <th width="35%">优化方案</th>
+    </tr>
+    <tr>
+      <td class="issue">风格完全脱节</td>
+      <td>蓝色渐变头部(#1890ff)，跟其他页面的白灰配色不一致</td>
+      <td class="fix">对齐项目设计系统，使用#1E293B主色+白色卡片</td>
+    </tr>
+    <tr>
+      <td class="issue">试验选择器简陋</td>
+      <td>用原生picker（长列表不可搜索），选完后无数据预览提示</td>
+      <td class="fix">改为卡片式选择列表+选中状态，或可搜索的下拉</td>
+    </tr>
+    <tr>
+      <td class="issue">预览卡片用原生元素</td>
+      <td>自定义tag样式（非t-tag），border-radius/color不统一</td>
+      <td class="fix">使用t-tag组件，卡片风格对齐项目</td>
+    </tr>
+    <tr>
+      <td class="issue">导出按钮风格不统一</td>
+      <td>使用原生button，蓝色渐变+白色描边</td>
+      <td class="fix">使用t-button组件，主色实心+描边组合</td>
+    </tr>
+    <tr>
+      <td class="issue">缺少进度反馈</td>
+      <td>导出中只有文字"导出中..."，无进度条</td>
+      <td class="fix">t-button自带loading状态，导出后toast反馈</td>
+    </tr>
+  </table>
+
+  <div class="section-title" style="margin-top:24px">前后对比预览</div>
+  <div class="phone-wrap">
+    <!-- Before -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-status"><span>9:41</span><span style="color:#fff">📶 🔋</span></div>
+        <div style="background:linear-gradient(135deg,#1890ff,#36cfc9);padding:40px 20px 24px">
+          <div style="font-size:22px;font-weight:700;color:#fff">数据导出</div>
+        </div>
+        <div class="phone-content">
+          <div style="font-size:14px;font-weight:600;color:#333;margin-bottom:8px">选择试验</div>
+          <div style="background:#fff;border:1px solid #ddd;border-radius:12px;padding:14px;display:flex;justify-content:space-between;font-size:14px;margin-bottom:16px">
+            <span style="color:#999">请选择试验</span><span style="color:#999">▼</span>
+          </div>
+          <div style="font-size:14px;font-weight:600;color:#333;margin-bottom:8px">已提交记录（3条）</div>
+          <div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:8px">
+            <div style="font-size:14px;color:#333;margin-bottom:4px">ACC跟车异常</div>
+            <div style="display:flex;gap:6px">
+              <span style="background:#f0f0f0;border-radius:4px;padding:2px 10px;font-size:12px;color:#666">功能异常</span>
+              <span style="background:#f0f0f0;border-radius:4px;padding:2px 10px;font-size:12px;color:#666">严重</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+            <div style="background:linear-gradient(135deg,#1890ff,#36cfc9);color:#fff;text-align:center;padding:12px;border-radius:12px;font-size:15px">导出 Excel</div>
+            <div style="background:#fff;color:#1890ff;text-align:center;padding:12px;border-radius:12px;font-size:15px;border:1px solid #1890ff">导出 CSV</div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">⬅ 优化前</div>
+    </div>
+
+    <!-- After -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="phone-content">
+          <div style="margin-bottom:16px">
+            <h2 style="font-size:20px;font-weight:700">数据导出</h2>
+            <p style="font-size:12px;color:var(--text-secondary);margin-top:2px">选择试验后导出Excel或CSV</p>
+          </div>
+          <div class="mock-export-card">
+            <div style="font-size:13px;font-weight:600;margin-bottom:10px">选择试验</div>
+            <div class="sel selected">
+              <span>张三 · 2026-04-20 · 高速环线</span>
+              <span style="font-size:12px">▼</span>
+            </div>
+          </div>
+          <div class="mock-export-card">
+            <div class="mock-header-row" style="margin-bottom:12px">
+              <div style="font-size:13px;font-weight:600">已提交记录</div>
+              <span style="font-size:12px;color:var(--text-secondary)">3条</span>
+            </div>
+            <div style="background:var(--bg);border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid var(--danger)">
+              <div style="font-size:13px;font-weight:500;margin-bottom:4px">ACC跟车异常，前车切入时制动过晚</div>
+              <div style="display:flex;gap:6px">
+                <span style="font-size:10px;background:#FEE2E2;color:var(--danger);padding:1px 8px;border-radius:4px">严重</span>
+                <span style="font-size:10px;background:var(--primary-light);padding:1px 8px;border-radius:4px">功能异常</span>
+              </div>
+            </div>
+            <div style="background:var(--bg);border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid var(--warning)">
+              <div style="font-size:13px;font-weight:500;margin-bottom:4px">LKA弯道偏离</div>
+              <div style="display:flex;gap:6px">
+                <span style="font-size:10px;background:#FEF3C7;color:var(--warning);padding:1px 8px;border-radius:4px">一般</span>
+                <span style="font-size:10px;background:var(--primary-light);padding:1px 8px;border-radius:4px">性能不足</span>
+              </div>
+            </div>
+          </div>
+          <div class="mock-export-card">
+            <div style="display:flex;gap:10px">
+              <div style="flex:1;background:var(--primary);color:#fff;text-align:center;padding:12px;border-radius:10px;font-size:14px;font-weight:500">📊 导出 Excel</div>
+              <div style="flex:1;background:var(--card);color:var(--text);text-align:center;padding:12px;border-radius:10px;font-size:14px;font-weight:500;border:1px solid var(--border)">📄 导出 CSV</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">⬅ 优化后</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ============================================================ -->
+<!-- 5. 归档页面 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-title">05 · 归档项目 <span class="badge">2 issues</span></div>
+  <div class="section-sub">pages/project-archive/index.vue</div>
+
+  <table class="cmp-table">
+    <tr>
+      <th width="25%">问题</th>
+      <th width="40%">现状</th>
+      <th width="35%">优化方案</th>
+    </tr>
+    <tr>
+      <td class="issue">布局重复</td>
+      <td>和首页几乎一样的卡片布局，但功能单一（只恢复/删除）</td>
+      <td class="fix">更紧凑的列表布局，减少padding，视觉上明显区分为"归档"</td>
+    </tr>
+    <tr>
+      <td class="issue">缺少批量操作</td>
+      <td>只能一个个恢复/删除，归档了多个项目时操作繁琐</td>
+      <td class="fix">增加选择模式，支持批量恢复/清空</td>
+    </tr>
+  </table>
+
+  <div class="section-title" style="margin-top:24px">前后对比预览</div>
+  <div class="phone-wrap">
+    <!-- Before -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="phone-content">
+          <div style="margin-bottom:16px"><h2 style="font-size:20px;font-weight:700">归档项目</h2><p style="font-size:12px;color:var(--text-secondary)">历史项目统一收纳</p></div>
+          <div style="background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:20px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+              <span style="font-size:16px;font-weight:700">旧GAC项目</span>
+              <span style="font-size:11px;background:var(--bg);padding:1px 8px;border-radius:4px">GAC-001</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary)">技术负责人：张三</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">归档时间：2026-03-15</div>
+            <div class="mock-actions">
+              <div class="mock-btn primary">恢复</div>
+              <div class="mock-btn danger">彻底删除</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">⬅ 优化前</div>
+    </div>
+
+    <!-- After -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="phone-content">
+          <div class="mock-header-row" style="margin-bottom:12px">
+            <h2 style="font-size:20px;font-weight:700">🗄 归档项目</h2>
+            <span style="font-size:12px;color:var(--accent)">选择模式 ›</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <span style="font-size:12px;background:var(--primary);color:#fff;padding:3px 10px;border-radius:8px">全部</span>
+            <span style="font-size:12px;background:var(--bg);padding:3px 10px;border-radius:8px">近期归档</span>
+            <span style="font-size:12px;background:var(--bg);padding:3px 10px;border-radius:8px">更早</span>
+          </div>
+          <div class="mock-card-2" style="border-left:3px solid #94A3B8;margin-bottom:8px;background:var(--bg)">
+            <div class="left"><div class="title">旧GAC项目</div><div class="sub">GAC-001 · 归档于 2026-03</div></div>
+            <div style="display:flex;gap:6px">
+              <span style="font-size:11px;background:var(--primary);color:#fff;padding:2px 10px;border-radius:6px">恢复</span>
+              <span style="font-size:11px;background:var(--card);color:var(--danger);padding:2px 10px;border-radius:6px;border:1px solid #FECACA">删除</span>
+            </div>
+          </div>
+          <div class="mock-card-2" style="border-left:3px solid #94A3B8;margin-bottom:8px;background:var(--bg)">
+            <div class="left"><div class="title">旧BYD项目</div><div class="sub">BYD-002 · 归档于 2026-02</div></div>
+            <div style="display:flex;gap:6px">
+              <span style="font-size:11px;background:var(--primary);color:#fff;padding:2px 10px;border-radius:6px">恢复</span>
+              <span style="font-size:11px;background:var(--card);color:var(--danger);padding:2px 10px;border-radius:6px;border:1px solid #FECACA">删除</span>
+            </div>
+          </div>
+          <div style="margin-top:16px;font-size:12px;color:var(--text-secondary);text-align:center">共2个归档项目 · 30天自动清理已开启</div>
+        </div>
+      </div>
+      <div class="phone-label">⬅ 优化后</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ============================================================ -->
+<!-- Summary -->
+<!-- ============================================================ -->
+<div class="summary-box">
+  <h3>📋 优化方案总结</h3>
+  <ul>
+    <li><strong>设计语言统一</strong> — 所有页面使用 #1E293B 主色 + 白色卡片 + 24rpx圆角，消除export页面的旧版蓝色渐变</li>
+    <li><strong>操作收敛</strong> — 页面内操作按钮不超过2个，次要操作收入"⋯"菜单或滑动操作</li>
+    <li><strong>信息密度提升</strong> — 卡片增加严重度色条、状态标识、进度信息，一眼可读</li>
+    <li><strong>表单反馈增强</strong> — 实时校验 + 自动保存指示，提升填写信心</li>
+    <li><strong>卡片组件化</strong> — 统一使用 t-tag/t-button/t-cell-group，消除自定义样式标签</li>
+    <li><strong>导出页面翻新</strong> — 完全重写export页面的模板和样式，对齐设计系统</li>
+    <li><strong>归档页面差异化</strong> — 减少与首页的同质化，增加筛选和批量操作</li>
+    <li><strong>Touch Target</strong> — 所有交互元素 ≥44pt，关键操作有loading/disabled状态</li>
+    <li><strong>底部安全区域</strong> — 固定元素使用 env(safe-area-inset-bottom)</li>
+  </ul>
+</div>
+
+<div class="page-desc">
+  <strong>优先级建议：</strong><br><br>
+  <strong>P0 · 高优先级</strong> — 导出页面翻新（风格完全不同，影响品牌一致性）<br>
+  <strong>P1 · 中优先级</strong> — 首页卡片操作优化 + 搜索筛选（影响日常使用效率）<br>
+  <strong>P2 · 中优先级</strong> — 项目详情卡片紧凑化（影响信息可读性）<br>
+  <strong>P3 · 低优先级</strong> — 归档页面差异化（使用频率低）<br>
+  <strong>P3 · 低优先级</strong> — 试验详情记录卡片增强（已有部分实现）
+</div>
+
+</body>
+</html>

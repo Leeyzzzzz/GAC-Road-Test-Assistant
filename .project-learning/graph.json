@@ -1,0 +1,736 @@
+{
+  "projectRoot": "D:\\\\Projects\\\\路测助手",
+  "generatedAt": "2026-04-13T12:52:18.717Z",
+  "profile": {
+    "businessFamiliarity": "low",
+    "frontendLevel": "low",
+    "backendLevel": "low",
+    "databaseLevel": "low",
+    "goal": "read-project"
+  },
+  "stackGroups": [
+    {
+      "id": "html-template",
+      "label": "HTML-like Template",
+      "order": 1,
+      "nodeIds": [
+        "template-conditional-blocks",
+        "template-list-rendering",
+        "template-event-binding",
+        "template-text-interpolation"
+      ]
+    },
+    {
+      "id": "css",
+      "label": "CSS",
+      "order": 2,
+      "nodeIds": [
+        "css-layout-containers",
+        "css-fixed-actions"
+      ]
+    },
+    {
+      "id": "javascript",
+      "label": "JavaScript",
+      "order": 3,
+      "nodeIds": [
+        "javascript-async-data-loading",
+        "javascript-error-handling",
+        "javascript-string-url-composition"
+      ]
+    },
+    {
+      "id": "vue3",
+      "label": "Vue 3",
+      "order": 4,
+      "nodeIds": [
+        "vue3-page-state",
+        "vue3-methods-actions"
+      ]
+    },
+    {
+      "id": "uniapp",
+      "label": "UniApp",
+      "order": 5,
+      "nodeIds": [
+        "uniapp-page-lifecycle",
+        "uniapp-page-navigation",
+        "uniapp-feedback-api",
+        "uniapp-page-registration"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "template-conditional-blocks",
+      "label": "模板条件块",
+      "techStack": "html-template",
+      "layerPath": [
+        "frontend",
+        "html-template"
+      ],
+      "description": "理解模板如何根据状态决定某个块是否渲染。",
+      "role": "foundation",
+      "riskLevel": "low",
+      "recommendedMastery": "safe-small-change",
+      "status": "unknown",
+      "prerequisites": [],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\export\\index.vue",
+          "codeSnippet": "\n    <!-- Preview -->\n    <view v-if=\"selectedSession\" class=\"section\">\n      <text class=\"section-title\">已提交记录 ({{ records.length }} 条)</text>\n",
+          "moduleLabel": "模板条件渲染",
+          "usageReason": "这是页面结构分支的基础能力，决定空态、状态切换和条件显示。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "\n    <view class=\"session-list\">\n      <view v-if=\"sessions.length === 0\" class=\"empty\">\n        <text class=\"empty-text\">暂无试验记录</text>\n        <text class=\"empty-hint\">点击下方按钮创建新试验</text>",
+          "moduleLabel": "模板条件渲染",
+          "usageReason": "这是页面结构分支的基础能力，决定空态、状态切换和条件显示。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\record\\index.vue",
+          "codeSnippet": "  <view class=\"page\">\n    <!-- Recording State -->\n    <view v-if=\"!record.id || record.status === 'draft'\" class=\"record-section\">\n      <!-- Prompt Text -->\n      <view v-if=\"!isRecording && !record.raw_text\" class=\"prompt-box\">",
+          "moduleLabel": "模板条件渲染",
+          "usageReason": "这是页面结构分支的基础能力，决定空态、状态切换和条件显示。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "  <view class=\"page\">\n    <!-- New Session Form -->\n    <view v-if=\"isNew\" class=\"form-section\">\n      <text class=\"section-title\">新建试验</text>\n",
+          "moduleLabel": "模板条件渲染",
+          "usageReason": "这是页面结构分支的基础能力，决定空态、状态切换和条件显示。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "css-layout-containers",
+      "label": "样式布局容器",
+      "techStack": "css",
+      "layerPath": [
+        "frontend",
+        "css"
+      ],
+      "description": "理解页面如何通过容器样式建立主布局与空间结构。",
+      "role": "foundation",
+      "riskLevel": "low",
+      "recommendedMastery": "safe-small-change",
+      "status": "unknown",
+      "prerequisites": [
+        "template-list-rendering"
+      ],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\export\\index.vue",
+          "codeSnippet": "<style scoped>\n.page {\n  min-height: 100vh;\n  background-color: #f5f5f5;\n  padding-bottom: 40rpx;",
+          "moduleLabel": "样式布局容器",
+          "usageReason": "布局容器决定页面整体骨架，是读懂页面视觉结构的入口。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "<style scoped>\n.page {\n  min-height: 100vh;\n  background-color: #f5f5f5;\n  padding-bottom: 120rpx;",
+          "moduleLabel": "样式布局容器",
+          "usageReason": "布局容器决定页面整体骨架，是读懂页面视觉结构的入口。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\record\\index.vue",
+          "codeSnippet": "<style scoped>\n.page {\n  min-height: 100vh;\n  background-color: #f5f5f5;\n  padding: 20rpx;",
+          "moduleLabel": "样式布局容器",
+          "usageReason": "布局容器决定页面整体骨架，是读懂页面视觉结构的入口。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "<style scoped>\n.page {\n  min-height: 100vh;\n  background-color: #f5f5f5;\n  padding-bottom: 200rpx;",
+          "moduleLabel": "样式布局容器",
+          "usageReason": "布局容器决定页面整体骨架，是读懂页面视觉结构的入口。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "javascript-async-data-loading",
+      "label": "异步数据加载",
+      "techStack": "javascript",
+      "layerPath": [
+        "frontend",
+        "javascript"
+      ],
+      "description": "理解页面如何异步请求数据并将结果写回状态。",
+      "role": "foundation",
+      "riskLevel": "medium",
+      "recommendedMastery": "safe-small-change",
+      "status": "unknown",
+      "prerequisites": [
+        "template-list-rendering"
+      ],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\export\\index.vue",
+          "codeSnippet": "  },\n  methods: {\n    async loadSessions() {\n      try {\n        this.sessions = await getSessions();",
+          "moduleLabel": "异步数据加载",
+          "usageReason": "页面数据流几乎都从异步加载开始，是前端逻辑主线的基础。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "      return p ? p.name : '未知项目';\n    },\n    async loadData() {\n      try {\n        var results = await Promise.all([getSessions(), getProjects()]);",
+          "moduleLabel": "异步数据加载",
+          "usageReason": "页面数据流几乎都从异步加载开始，是前端逻辑主线的基础。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\record\\index.vue",
+          "codeSnippet": "  },\n  methods: {\n    async loadRecord() {\n      try {\n        this.record = await getRecord(this.recordId);",
+          "moduleLabel": "异步数据加载",
+          "usageReason": "页面数据流几乎都从异步加载开始，是前端逻辑主线的基础。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "  },\n  methods: {\n    async loadSession() {\n      try {\n        this.session = await getSession(this.sessionId);",
+          "moduleLabel": "异步数据加载",
+          "usageReason": "页面数据流几乎都从异步加载开始，是前端逻辑主线的基础。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "vue3-page-state",
+      "label": "Vue 页面状态",
+      "techStack": "vue3",
+      "layerPath": [
+        "frontend",
+        "vue3"
+      ],
+      "description": "理解 Vue 页面如何在 `data()` 中声明并维护响应式状态。",
+      "role": "foundation",
+      "riskLevel": "medium",
+      "recommendedMastery": "safe-small-change",
+      "status": "unknown",
+      "prerequisites": [
+        "javascript-async-data-loading"
+      ],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\export\\index.vue",
+          "codeSnippet": "\nexport default {\n  data() {\n    return {\n      sessions: [],",
+          "moduleLabel": "Vue 页面状态",
+          "usageReason": "页面状态是所有渲染和交互的中心，属于 Vue 层的第一块地基。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "\nexport default {\n  data() {\n    return {\n      sessions: [],",
+          "moduleLabel": "Vue 页面状态",
+          "usageReason": "页面状态是所有渲染和交互的中心，属于 Vue 层的第一块地基。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\record\\index.vue",
+          "codeSnippet": "\nexport default {\n  data() {\n    return {\n      record: {},",
+          "moduleLabel": "Vue 页面状态",
+          "usageReason": "页面状态是所有渲染和交互的中心，属于 Vue 层的第一块地基。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "\nexport default {\n  data() {\n    return {\n      isNew: false,",
+          "moduleLabel": "Vue 页面状态",
+          "usageReason": "页面状态是所有渲染和交互的中心，属于 Vue 层的第一块地基。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "uniapp-page-lifecycle",
+      "label": "UniApp 页面生命周期",
+      "techStack": "uniapp",
+      "layerPath": [
+        "frontend",
+        "uniapp"
+      ],
+      "description": "理解 UniApp 页面如何通过页面级生命周期触发初始化逻辑。",
+      "role": "high-leverage-concept",
+      "riskLevel": "medium",
+      "recommendedMastery": "safe-small-change",
+      "status": "unknown",
+      "prerequisites": [
+        "vue3-page-state"
+      ],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\App.vue",
+          "codeSnippet": "    console.log('路测助手启动');\n  },\n  onShow() {\n    console.log('App Show');\n  },",
+          "moduleLabel": "UniApp 页面生命周期",
+          "usageReason": "UniApp 的页面生命周期决定什么时候触发加载，是框架层的重要入口。",
+          "importanceScore": 0.8
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\export\\index.vue",
+          "codeSnippet": "    },\n  },\n  onShow() {\n    this.loadSessions();\n  },",
+          "moduleLabel": "UniApp 页面生命周期",
+          "usageReason": "UniApp 的页面生命周期决定什么时候触发加载，是框架层的重要入口。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "    };\n  },\n  onShow() {\n    this.loadData();\n  },",
+          "moduleLabel": "UniApp 页面生命周期",
+          "usageReason": "UniApp 的页面生命周期决定什么时候触发加载，是框架层的重要入口。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "    }\n  },\n  onShow() {\n    if (this.sessionId) {\n      this.loadRecords();",
+          "moduleLabel": "UniApp 页面生命周期",
+          "usageReason": "UniApp 的页面生命周期决定什么时候触发加载，是框架层的重要入口。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "template-list-rendering",
+      "label": "模板列表渲染",
+      "techStack": "html-template",
+      "layerPath": [
+        "frontend",
+        "html-template"
+      ],
+      "description": "理解模板如何批量渲染列表数据并绑定稳定 key。",
+      "role": "foundation",
+      "riskLevel": "medium",
+      "recommendedMastery": "safe-small-change",
+      "status": "unknown",
+      "prerequisites": [],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\export\\index.vue",
+          "codeSnippet": "      </view>\n\n      <view v-for=\"record in records\" :key=\"record.id\" class=\"preview-card\">\n        <view class=\"preview-header\">\n          <text class=\"preview-summary\">{{ record.summary || '无摘要' }}</text>",
+          "moduleLabel": "模板列表渲染",
+          "usageReason": "列表是页面主路径的重要结构，不理解它就难以读懂页面数据如何落到界面上。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "\n      <view\n        v-for=\"session in sessions\"\n        :key=\"session.id\"\n        class=\"session-card\"",
+          "moduleLabel": "模板列表渲染",
+          "usageReason": "列表是页面主路径的重要结构，不理解它就难以读懂页面数据如何落到界面上。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\record\\index.vue",
+          "codeSnippet": "        </view>\n        <view v-if=\"attachments.length > 0\" class=\"attach-list\">\n          <view v-for=\"(att, idx) in attachments\" :key=\"idx\" class=\"attach-item\">\n            <text class=\"attach-name\">{{ att.type === 'photo' ? '照片' : '视频' }} {{ idx + 1 }}</text>\n            <text class=\"attach-remove\" @click=\"removeAttachment(idx)\">删除</text>",
+          "moduleLabel": "模板列表渲染",
+          "usageReason": "列表是页面主路径的重要结构，不理解它就难以读懂页面数据如何落到界面上。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "\n        <view\n          v-for=\"record in records\"\n          :key=\"record.id\"\n          class=\"record-card\"",
+          "moduleLabel": "模板列表渲染",
+          "usageReason": "列表是页面主路径的重要结构，不理解它就难以读懂页面数据如何落到界面上。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "css-fixed-actions",
+      "label": "固定操作区样式",
+      "techStack": "css",
+      "layerPath": [
+        "frontend",
+        "css"
+      ],
+      "description": "理解悬浮按钮等固定定位元素如何组织操作入口。",
+      "role": "framework-usage",
+      "riskLevel": "medium",
+      "recommendedMastery": "understand-project-usage",
+      "status": "unknown",
+      "prerequisites": [
+        "template-event-binding"
+      ],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "\n.fab {\n  position: fixed;\n  bottom: 140rpx;\n  left: 50%;",
+          "moduleLabel": "固定操作区样式",
+          "usageReason": "固定操作区通常承载主操作入口，关系到页面使用流。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "\n.fab-record {\n  position: fixed;\n  bottom: 120rpx;\n  left: 50%;",
+          "moduleLabel": "固定操作区样式",
+          "usageReason": "固定操作区通常承载主操作入口，关系到页面使用流。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "javascript-error-handling",
+      "label": "JavaScript 错误处理",
+      "techStack": "javascript",
+      "layerPath": [
+        "frontend",
+        "javascript"
+      ],
+      "description": "理解页面在请求或处理失败时如何进入异常分支。",
+      "role": "framework-usage",
+      "riskLevel": "medium",
+      "recommendedMastery": "understand-project-usage",
+      "status": "unknown",
+      "prerequisites": [
+        "template-conditional-blocks"
+      ],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\export\\index.vue",
+          "codeSnippet": "  methods: {\n    async loadSessions() {\n      try {\n        this.sessions = await getSessions();\n      } catch (e) {",
+          "moduleLabel": "JavaScript 错误处理",
+          "usageReason": "错误处理决定失败路径的可恢复性，是安全理解和修改逻辑的必要前提。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "    },\n    async loadData() {\n      try {\n        var results = await Promise.all([getSessions(), getProjects()]);\n        this.sessions = results[0];",
+          "moduleLabel": "JavaScript 错误处理",
+          "usageReason": "错误处理决定失败路径的可恢复性，是安全理解和修改逻辑的必要前提。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\record\\index.vue",
+          "codeSnippet": "  methods: {\n    async loadRecord() {\n      try {\n        this.record = await getRecord(this.recordId);\n        this.editableText = this.record.edited_text || this.record.raw_text || '';",
+          "moduleLabel": "JavaScript 错误处理",
+          "usageReason": "错误处理决定失败路径的可恢复性，是安全理解和修改逻辑的必要前提。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "  methods: {\n    async loadSession() {\n      try {\n        this.session = await getSession(this.sessionId);\n      } catch (err) {",
+          "moduleLabel": "JavaScript 错误处理",
+          "usageReason": "错误处理决定失败路径的可恢复性，是安全理解和修改逻辑的必要前提。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "vue3-methods-actions",
+      "label": "Vue methods 行为组织",
+      "techStack": "vue3",
+      "layerPath": [
+        "frontend",
+        "vue3"
+      ],
+      "description": "理解页面如何把交互和业务动作组织在 `methods` 中。",
+      "role": "foundation",
+      "riskLevel": "medium",
+      "recommendedMastery": "safe-small-change",
+      "status": "unknown",
+      "prerequisites": [
+        "javascript-string-url-composition"
+      ],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\export\\index.vue",
+          "codeSnippet": "    this.loadSessions();\n  },\n  methods: {\n    async loadSessions() {\n      try {",
+          "moduleLabel": "Vue methods 行为组织",
+          "usageReason": "methods 是阅读页面行为最直接的入口，连接模板交互与业务逻辑。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "    this.loadData();\n  },\n  methods: {\n    getProjectName(projectId) {\n      var p = this.projects.find(function(p) { return p.id === projectId; });",
+          "moduleLabel": "Vue methods 行为组织",
+          "usageReason": "methods 是阅读页面行为最直接的入口，连接模板交互与业务逻辑。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\record\\index.vue",
+          "codeSnippet": "    }\n  },\n  methods: {\n    async loadRecord() {\n      try {",
+          "moduleLabel": "Vue methods 行为组织",
+          "usageReason": "methods 是阅读页面行为最直接的入口，连接模板交互与业务逻辑。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "    }\n  },\n  methods: {\n    async loadSession() {\n      try {",
+          "moduleLabel": "Vue methods 行为组织",
+          "usageReason": "methods 是阅读页面行为最直接的入口，连接模板交互与业务逻辑。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "uniapp-page-navigation",
+      "label": "UniApp 页面跳转",
+      "techStack": "uniapp",
+      "layerPath": [
+        "frontend",
+        "uniapp"
+      ],
+      "description": "理解 UniApp 如何在页面之间跳转并传递参数。",
+      "role": "high-leverage-concept",
+      "riskLevel": "medium",
+      "recommendedMastery": "safe-small-change",
+      "status": "unknown",
+      "prerequisites": [
+        "javascript-string-url-composition"
+      ],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "    },\n    goToDetail(sessionId) {\n      uni.navigateTo({ url: '/pages/session-detail/index?id=' + sessionId });\n    },\n    goToNewSession() {",
+          "moduleLabel": "UniApp 页面跳转",
+          "usageReason": "页面跳转是应用流程的主链路，不理解它就难以建立页面之间的因果关系。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "    },\n    goToRecord(recordId) {\n      uni.navigateTo({ url: '/pages/record/index?id=' + recordId + '&session_id=' + this.sessionId });\n    },\n    goToNewRecord() {",
+          "moduleLabel": "UniApp 页面跳转",
+          "usageReason": "页面跳转是应用流程的主链路，不理解它就难以建立页面之间的因果关系。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "template-event-binding",
+      "label": "模板事件绑定",
+      "techStack": "html-template",
+      "layerPath": [
+        "frontend",
+        "html-template"
+      ],
+      "description": "理解模板如何把点击等交互事件绑定到逻辑方法。",
+      "role": "foundation",
+      "riskLevel": "low",
+      "recommendedMastery": "safe-small-change",
+      "status": "unknown",
+      "prerequisites": [],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\export\\index.vue",
+          "codeSnippet": "    <view class=\"section\">\n      <text class=\"section-title\">选择试验</text>\n      <picker :range=\"sessionNames\" @change=\"onSessionChange\">\n        <view class=\"picker-box\">\n          <text :class=\"['picker-text', selectedSession ? '' : 'placeholder']\">",
+          "moduleLabel": "模板事件绑定",
+          "usageReason": "交互入口决定用户操作如何流向方法逻辑，是理解页面行为的基础。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "        :key=\"session.id\"\n        class=\"session-card\"\n        @click=\"goToDetail(session.id)\"\n      >\n        <view class=\"card-header\">",
+          "moduleLabel": "模板事件绑定",
+          "usageReason": "交互入口决定用户操作如何流向方法逻辑，是理解页面行为的基础。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\record\\index.vue",
+          "codeSnippet": "      <!-- Big Record Button -->\n      <view class=\"record-btn-area\">\n        <view :class=\"['record-btn', isRecording ? 'recording' : '']\" @click=\"toggleRecording\">\n          <text class=\"record-btn-icon\">{{ isRecording ? '⏹' : '🎙' }}</text>\n        </view>",
+          "moduleLabel": "模板事件绑定",
+          "usageReason": "交互入口决定用户操作如何流向方法逻辑，是理解页面行为的基础。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "      <view class=\"form-group\">\n        <text class=\"label\">测试日期</text>\n        <picker mode=\"date\" :value=\"form.testDate\" @change=\"onDateChange\">\n          <view class=\"picker\">{{ form.testDate }}</view>\n        </picker>",
+          "moduleLabel": "模板事件绑定",
+          "usageReason": "交互入口决定用户操作如何流向方法逻辑，是理解页面行为的基础。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "javascript-string-url-composition",
+      "label": "字符串路由参数拼接",
+      "techStack": "javascript",
+      "layerPath": [
+        "frontend",
+        "javascript"
+      ],
+      "description": "理解代码如何通过字符串拼接构造带参数的跳转地址。",
+      "role": "framework-usage",
+      "riskLevel": "medium",
+      "recommendedMastery": "understand-project-usage",
+      "status": "unknown",
+      "prerequisites": [
+        "template-event-binding"
+      ],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "    },\n    goToDetail(sessionId) {\n      uni.navigateTo({ url: '/pages/session-detail/index?id=' + sessionId });\n    },\n    goToNewSession() {",
+          "moduleLabel": "字符串路由参数拼接",
+          "usageReason": "跳转参数拼接连接页面与页面之间的数据传递，是理解导航链路的关键细节。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "    },\n    goToRecord(recordId) {\n      uni.navigateTo({ url: '/pages/record/index?id=' + recordId + '&session_id=' + this.sessionId });\n    },\n    goToNewRecord() {",
+          "moduleLabel": "字符串路由参数拼接",
+          "usageReason": "跳转参数拼接连接页面与页面之间的数据传递，是理解导航链路的关键细节。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "uniapp-feedback-api",
+      "label": "UniApp 反馈接口",
+      "techStack": "uniapp",
+      "layerPath": [
+        "frontend",
+        "uniapp"
+      ],
+      "description": "理解 UniApp 如何通过系统 API 给用户反馈错误或状态。",
+      "role": "framework-usage",
+      "riskLevel": "low",
+      "recommendedMastery": "understand-project-usage",
+      "status": "unknown",
+      "prerequisites": [
+        "javascript-error-handling"
+      ],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\export\\index.vue",
+          "codeSnippet": "        this.sessions = await getSessions();\n      } catch (e) {\n        uni.showToast({ title: '加载试验列表失败', icon: 'none' });\n      }\n    },",
+          "moduleLabel": "UniApp 反馈接口",
+          "usageReason": "系统反馈是用户感知失败路径的主要方式，也帮助定位页面异常分支。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "        this.projects = results[1];\n      } catch (err) {\n        uni.showToast({ title: '加载失败', icon: 'none' });\n      }\n    },",
+          "moduleLabel": "UniApp 反馈接口",
+          "usageReason": "系统反馈是用户感知失败路径的主要方式，也帮助定位页面异常分支。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\record\\index.vue",
+          "codeSnippet": "        }\n      } catch (err) {\n        uni.showToast({ title: '加载失败', icon: 'none' });\n      }\n    },",
+          "moduleLabel": "UniApp 反馈接口",
+          "usageReason": "系统反馈是用户感知失败路径的主要方式，也帮助定位页面异常分支。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "        this.session = await getSession(this.sessionId);\n      } catch (err) {\n        uni.showToast({ title: '加载失败', icon: 'none' });\n      }\n    },",
+          "moduleLabel": "UniApp 反馈接口",
+          "usageReason": "系统反馈是用户感知失败路径的主要方式，也帮助定位页面异常分支。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "template-text-interpolation",
+      "label": "模板文本插值",
+      "techStack": "html-template",
+      "layerPath": [
+        "frontend",
+        "html-template"
+      ],
+      "description": "理解模板如何把状态值插入到视图文本中。",
+      "role": "foundation",
+      "riskLevel": "low",
+      "recommendedMastery": "safe-small-change",
+      "status": "unknown",
+      "prerequisites": [],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\export\\index.vue",
+          "codeSnippet": "        <view class=\"picker-box\">\n          <text :class=\"['picker-text', selectedSession ? '' : 'placeholder']\">\n            {{ selectedSession ? selectedSessionName : '请选择试验' }}\n          </text>\n          <text class=\"picker-arrow\">▼</text>",
+          "moduleLabel": "模板文本插值",
+          "usageReason": "文本插值是把业务数据展示给用户的最基本方式。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\index\\index.vue",
+          "codeSnippet": "      >\n        <view class=\"card-header\">\n          <text class=\"card-project\">{{ getProjectName(session.project_id) }}</text>\n          <view :class=\"['card-status', session.status === 'active' ? 'status-active' : 'status-completed']\">\n            <text class=\"status-text\">{{ session.status === 'active' ? '进行中' : '已结束' }}</text>",
+          "moduleLabel": "模板文本插值",
+          "usageReason": "文本插值是把业务数据展示给用户的最基本方式。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\record\\index.vue",
+          "codeSnippet": "      <!-- Prompt Text -->\n      <view v-if=\"!isRecording && !record.raw_text\" class=\"prompt-box\">\n        <text class=\"prompt-text\">{{ promptText }}</text>\n      </view>\n",
+          "moduleLabel": "模板文本插值",
+          "usageReason": "文本插值是把业务数据展示给用户的最基本方式。",
+          "importanceScore": 0.95
+        },
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages\\session-detail\\index.vue",
+          "codeSnippet": "        <text class=\"label\">测试日期</text>\n        <picker mode=\"date\" :value=\"form.testDate\" @change=\"onDateChange\">\n          <view class=\"picker\">{{ form.testDate }}</view>\n        </picker>\n      </view>",
+          "moduleLabel": "模板文本插值",
+          "usageReason": "文本插值是把业务数据展示给用户的最基本方式。",
+          "importanceScore": 0.95
+        }
+      ],
+      "source": "project"
+    },
+    {
+      "id": "uniapp-page-registration",
+      "label": "UniApp 页面注册",
+      "techStack": "uniapp",
+      "layerPath": [
+        "frontend",
+        "uniapp"
+      ],
+      "description": "理解 UniApp 如何通过 `pages.json` 声明页面入口。",
+      "role": "foundation",
+      "riskLevel": "low",
+      "recommendedMastery": "safe-small-change",
+      "status": "unknown",
+      "prerequisites": [
+        "vue3-page-state"
+      ],
+      "relatedNodeIds": [],
+      "evidence": [
+        {
+          "filePath": "D:\\Projects\\路测助手\\client\\pages.json",
+          "codeSnippet": "{\n  \"pages\": [\n    {\n      \"path\": \"pages/index/index\",",
+          "moduleLabel": "UniApp 页面注册",
+          "usageReason": "页面注册文件定义了应用的页面入口和导航空间，是理解应用结构的框架基础。",
+          "importanceScore": 0.8
+        }
+      ],
+      "source": "project"
+    }
+  ],
+  "recommendations": [
+    {
+      "nodeId": "template-conditional-blocks",
+      "reason": "从最底层的技术栈地基开始，逐层往上学习。",
+      "priority": 5
+    }
+  ]
+}

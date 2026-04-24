@@ -14,7 +14,7 @@
     </view>
 
     <!-- Search bar (UI only) -->
-    <view class="search-bar">🔍 搜索项目名称或编号…</view>
+    <view class="search-bar">搜索项目名称或编号…</view>
 
     <!-- Empty State -->
     <view v-if="projects.length === 0" class="card empty-wrap">
@@ -73,7 +73,7 @@ export default {
   },
   computed: {
     themeVars() {
-      return '--td-brand-color: #1E293B; --td-brand-color-light: #E8EAF0; --td-error-color: #DC2626; --td-success-color: #059669; --td-warning-color: #D97706; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
+      return '--td-brand-color: #1E293B; --td-brand-color-light: #E8EAF0; --td-error-color: #7A4B4B; --td-success-color: #4A6B5E; --td-warning-color: #7A6B4B; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
     },
     enrichedProjects() {
       return this.projects.map((project) => {
@@ -223,7 +223,7 @@ export default {
   color: #ffffff;
 }
 .badge-success {
-  background: var(--td-success-color, #059669);
+  background: var(--td-success-color, #4A6B5E);
   color: #ffffff;
 }
 .badge-muted {
@@ -277,7 +277,7 @@ export default {
 
 /* ===== Project Card ===== */
 .project-card {
-  border-left: 6rpx solid var(--td-success-color, #059669);
+  border-left: 6rpx solid var(--td-success-color, #4A6B5E);
 }
 .project-card-main {
   display: flex;

@@ -1,49 +1,58 @@
 <template>
-  <view class="page">
+  <view :style="themeVars" class="page">
+    <!-- Header -->
     <view class="header">
-      <text class="title">数据导出</text>
+      <text class="header-title">数据导出</text>
+      <text class="header-desc">选择试验后导出 Excel 或 CSV 文件</text>
     </view>
 
-    <!-- Session Selector -->
-    <view class="section">
-      <text class="section-title">选择试验</text>
+    <!-- Session Selector Card -->
+    <view class="card">
+      <view class="section-head">
+        <text class="section-head-title">选择试验</text>
+      </view>
       <picker :range="sessionNames" @change="onSessionChange">
-        <view class="picker-box">
+        <view :class="['picker-box', selectedSession ? 'picked' : '']">
           <text :class="['picker-text', selectedSession ? '' : 'placeholder']">
             {{ selectedSession ? selectedSessionName : '请选择试验' }}
           </text>
-          <text class="picker-arrow">▼</text>
+          <text class="picker-arrow">›</text>
         </view>
       </picker>
     </view>
 
-    <!-- Preview -->
-    <view v-if="selectedSession" class="section">
-      <text class="section-title">已提交记录 ({{ records.length }} 条)</text>
+    <!-- Preview Card -->
+    <view v-if="selectedSession" class="card section-card">
+      <view class="section-head">
+        <text class="section-head-title">已提交记录</text>
+        <text class="section-head-meta">{{ records.length }} 条</text>
+      </view>
 
-      <view v-if="records.length === 0" class="empty">
+      <view v-if="records.length === 0" class="empty-wrap">
         <text class="empty-text">该试验暂无已提交记录</text>
       </view>
 
       <view v-for="record in records" :key="record.id" class="preview-card">
-        <view class="preview-header">
-          <text class="preview-summary">{{ record.summary || '无摘要' }}</text>
+        <view class="preview-top">
+          <text class="preview-summary">{{ record.summary || record.raw_text || '无摘要' }}</text>
         </view>
         <view class="preview-tags">
-          <view v-if="record.problem_type" class="tag"><text class="tag-text">{{ record.problem_type }}</text></view>
-          <view v-if="record.severity" class="tag"><text class="tag-text">{{ record.severity }}</text></view>
+          <t-tag v-if="record.problem_type" theme="primary" variant="light" size="small">{{ record.problem_type }}</t-tag>
+          <t-tag v-if="record.severity" :theme="severityTheme(record.severity)" variant="light" size="small">{{ record.severity }}</t-tag>
         </view>
       </view>
     </view>
 
     <!-- Export Buttons -->
-    <view v-if="selectedSession && records.length > 0" class="export-area">
-      <button class="btn-export" @click="doExport('excel')" :disabled="exporting">
-        {{ exporting ? '导出中...' : '导出 Excel' }}
-      </button>
-      <button class="btn-export btn-csv" @click="doExport('csv')" :disabled="exporting">
-        {{ exporting ? '导出中...' : '导出 CSV' }}
-      </button>
+    <view v-if="selectedSession && records.length > 0" class="card section-card export-card">
+      <view class="export-actions">
+        <t-button theme="primary" block :loading="exporting" @click="doExport('excel')">
+          导出 Excel
+        </t-button>
+        <t-button variant="outline" block :loading="exporting" @click="doExport('csv')">
+          导出 CSV
+        </t-button>
+      </view>
     </view>
   </view>
 </template>
@@ -61,6 +70,9 @@ export default {
     };
   },
   computed: {
+    themeVars() {
+      return '--td-brand-color: #1E293B; --td-brand-color-light: #E8EAF0; --td-error-color: #DC2626; --td-success-color: #059669; --td-warning-color: #D97706; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
+    },
     sessionNames() {
       return this.sessions.map(s =>
         s.tester + ' - ' + s.test_date + (s.route ? ' - ' + s.route : '')
@@ -93,12 +105,20 @@ export default {
         this.records = [];
       }
     },
+    severityTheme(severity) {
+      const map = {
+        致命: 'danger',
+        严重: 'danger',
+        一般: 'warning',
+        轻微: 'default',
+      };
+      return map[severity] || 'default';
+    },
     doExport(type) {
       const ext = type === 'excel' ? 'xlsx' : 'csv';
       const url = getExportUrl(type, this.selectedSession);
 
       // #ifdef H5
-      // H5: use <a> tag to trigger browser download
       const link = document.createElement('a');
       link.href = url;
       link.download = `roadtest-${this.selectedSession}.${ext}`;
@@ -108,7 +128,6 @@ export default {
       // #endif
 
       // #ifndef H5
-      // App / Mini Program: download then open document
       this.exporting = true;
       uni.downloadFile({
         url,
@@ -145,119 +164,123 @@ export default {
 </script>
 
 <style scoped>
+/* ===== Page Layout ===== */
 .page {
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-bottom: 40rpx;
+  background: #f3f5f7;
+  padding: 24rpx 24rpx 60rpx;
 }
 
+/* ===== Header ===== */
 .header {
-  background: linear-gradient(135deg, #1890ff, #36cfc9);
-  padding: 60rpx 40rpx 40rpx;
+  margin-bottom: 20rpx;
 }
-
-.title {
-  font-size: 40rpx;
-  font-weight: bold;
-  color: #fff;
-}
-
-.section {
-  padding: 20rpx;
-}
-
-.section-title {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 16rpx;
+.header-title {
   display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #111827;
+}
+.header-desc {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: var(--td-text-color-secondary, #64748B);
 }
 
-.picker-box {
-  background: #fff;
-  border: 1rpx solid #ddd;
-  border-radius: 12rpx;
-  padding: 24rpx;
+/* ===== Shared Card ===== */
+.card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  box-shadow: 0 6rpx 24rpx rgba(15, 23, 42, 0.06);
+  padding: 28rpx;
+}
+.section-card {
+  margin-top: 20rpx;
+}
+
+/* ===== Section Header ===== */
+.section-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 16rpx;
 }
-
-.picker-text {
+.section-head-title {
   font-size: 28rpx;
-  color: #333;
+  font-weight: 700;
+  color: #111827;
 }
-
-.picker-text.placeholder {
-  color: #999;
-}
-
-.picker-arrow {
+.section-head-meta {
   font-size: 24rpx;
-  color: #999;
+  color: #94a3b8;
 }
 
-.empty {
-  text-align: center;
-  padding: 60rpx;
+/* ===== Picker ===== */
+.picker-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  border: 2rpx solid #e2e6ec;
+  border-radius: 16rpx;
+  padding: 24rpx;
 }
-
-.empty-text {
-  color: #999;
+.picker-box.picked {
+  border-color: var(--td-brand-color, #1E293B);
+  background: #f1f3f5;
+}
+.picker-text {
+  flex: 1;
   font-size: 28rpx;
+  color: var(--td-text-color-primary, #0F172A);
+}
+.picker-text.placeholder {
+  color: #94a3b8;
+}
+.picker-arrow {
+  font-size: 32rpx;
+  color: #94a3b8;
+  margin-left: 12rpx;
+}
+
+/* ===== Preview ===== */
+.empty-wrap {
+  text-align: center;
+  padding: 40rpx 0;
+}
+.empty-text {
+  font-size: 26rpx;
+  color: var(--td-text-color-secondary, #64748B);
 }
 
 .preview-card {
-  background: #fff;
-  border-radius: 12rpx;
-  padding: 20rpx;
-  margin-bottom: 12rpx;
+  padding: 20rpx 0;
 }
-
-.preview-header {
-  margin-bottom: 8rpx;
+.preview-card + .preview-card {
+  border-top: 2rpx solid #f0f2f5;
 }
-
+.preview-top {
+  margin-bottom: 10rpx;
+}
 .preview-summary {
-  font-size: 28rpx;
-  color: #333;
+  font-size: 27rpx;
+  color: var(--td-text-color-primary, #0F172A);
+  line-height: 1.6;
 }
-
 .preview-tags {
   display: flex;
-  gap: 8rpx;
+  gap: 10rpx;
+  flex-wrap: wrap;
 }
 
-.tag {
-  background: #f0f0f0;
-  border-radius: 6rpx;
-  padding: 4rpx 12rpx;
+/* ===== Export Actions ===== */
+.export-card {
+  padding-bottom: 32rpx;
 }
-
-.tag-text {
-  font-size: 22rpx;
-  color: #666;
-}
-
-.export-area {
-  padding: 20rpx;
+.export-actions {
   display: flex;
   flex-direction: column;
   gap: 16rpx;
-}
-
-.btn-export {
-  background: linear-gradient(135deg, #1890ff, #36cfc9);
-  color: #fff;
-  border: none;
-  border-radius: 12rpx;
-  font-size: 30rpx;
-}
-
-.btn-csv {
-  background: #fff;
-  color: #1890ff;
-  border: 1rpx solid #1890ff;
 }
 </style>

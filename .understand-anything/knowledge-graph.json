@@ -1,0 +1,1940 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "road-test-server",
+    "languages": [
+      "javascript",
+      "vue",
+      "html",
+      "markdown",
+      "json",
+      "config"
+    ],
+    "frameworks": [
+      "Express",
+      "Jest"
+    ],
+    "description": "路测助手 (Road Test Assistant) — 智驾场地试验用例管理系统。自动驾驶/ADAS路测场景下，副驾记录员通过语音快速记录问题，AI自动提取结构化信息。",
+    "analyzedAt": "2026-04-10T17:10:42.291Z",
+    "gitCommitHash": "8f279bb25fbb2181a37ad3ea66f7476976a36553"
+  },
+  "nodes": [
+    {
+      "id": "document:CLAUDE.md",
+      "type": "document",
+      "name": "CLAUDE.md",
+      "filePath": "CLAUDE.md",
+      "summary": "Claude Code project instructions documenting the architecture, common commands, data model, AI adapter pattern, and known issues for the Road Test Assistant project.",
+      "tags": [
+        "documentation",
+        "development",
+        "architecture",
+        "configuration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Project README with environment requirements, quick-start guide (clone, backend, frontend, device debugging), test instructions, project structure overview, and migration guide.",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "overview",
+        "setup"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:client/App.vue",
+      "type": "file",
+      "name": "App.vue",
+      "filePath": "client/App.vue",
+      "summary": "UniApp root application component with lifecycle hooks (onLaunch, onShow, onHide) and global page background styling.",
+      "tags": [
+        "entry-point",
+        "component",
+        "lifecycle"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:client/index.html",
+      "type": "file",
+      "name": "index.html",
+      "filePath": "client/index.html",
+      "summary": "HTML entry point for the UniApp H5 build, loading the Vue3 application via main.js.",
+      "tags": [
+        "entry-point",
+        "markup"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:client/main.js",
+      "type": "file",
+      "name": "main.js",
+      "filePath": "client/main.js",
+      "summary": "UniApp Vue3 bootstrap file that creates an SSR-compatible app instance wrapping the App.vue root component.",
+      "tags": [
+        "entry-point",
+        "bootstrap"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:client/manifest.json",
+      "type": "config",
+      "name": "manifest.json",
+      "filePath": "client/manifest.json",
+      "summary": "UniApp manifest configuring app identity, WeChat mini-program settings, Vue version, and H5 dev server proxy to localhost:3000 for API calls.",
+      "tags": [
+        "configuration",
+        "uniapp",
+        "proxy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:client/pages.json",
+      "type": "config",
+      "name": "pages.json",
+      "filePath": "client/pages.json",
+      "summary": "UniApp page routing and tab bar configuration defining the four main pages: session list, session detail, record, and export.",
+      "tags": [
+        "configuration",
+        "routing",
+        "uniapp"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:client/pages/export/index.vue",
+      "type": "file",
+      "name": "export/index.vue",
+      "filePath": "client/pages/export/index.vue",
+      "summary": "Export page allowing users to select a session and download records as Excel or CSV, with platform-conditional download logic for H5 vs native app.",
+      "tags": [
+        "component",
+        "export",
+        "data-management"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses UniApp conditional compilation (#ifdef H5) for browser download vs uni.downloadFile+uni.openDocument on native platforms."
+    },
+    {
+      "id": "file:client/pages/index/index.vue",
+      "type": "file",
+      "name": "index/index.vue",
+      "filePath": "client/pages/index/index.vue",
+      "summary": "Home page displaying a list of test sessions grouped by project, with navigation to session detail and new session creation.",
+      "tags": [
+        "component",
+        "list-view",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:client/pages/record/index.vue",
+      "type": "file",
+      "name": "record/index.vue",
+      "filePath": "client/pages/record/index.vue",
+      "summary": "Core recording page implementing the full voice-to-record workflow: audio recording via RecorderManager, upload, ASR transcription, AI field extraction, photo/video attachments, and GPS collection.",
+      "tags": [
+        "component",
+        "recording",
+        "asr",
+        "ai-integration",
+        "event-handler"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Orchestrates uni.getRecorderManager() for audio capture, calls backend AI endpoints for ASR and field extraction, and manages draft state with localStorage fallback."
+    },
+    {
+      "id": "file:client/pages/session-detail/index.vue",
+      "type": "file",
+      "name": "session-detail/index.vue",
+      "filePath": "client/pages/session-detail/index.vue",
+      "summary": "Dual-purpose session detail and creation page, displaying test session metadata, record list, and providing forms for creating new sessions or ending active ones.",
+      "tags": [
+        "component",
+        "data-model",
+        "session-management"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:client/services/api.js",
+      "type": "file",
+      "name": "api.js",
+      "filePath": "client/services/api.js",
+      "summary": "Centralized HTTP client wrapping uni.request for all backend API calls across projects, sessions, records, AI transcription/extraction, file upload, and data export.",
+      "tags": [
+        "service",
+        "api-handler",
+        "http-client",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:client/services/api.js:request",
+      "type": "function",
+      "name": "request",
+      "filePath": "client/services/api.js",
+      "lineRange": [
+        4,
+        26
+      ],
+      "summary": "Core HTTP request wrapper using uni.request with Promise, handling success/error status codes and network failures.",
+      "tags": [
+        "utility",
+        "http-client"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:client/services/api.js:uploadFile",
+      "type": "function",
+      "name": "uploadFile",
+      "filePath": "client/services/api.js",
+      "lineRange": [
+        101,
+        117
+      ],
+      "summary": "File upload handler using uni.uploadFile to POST multipart files to the /api/upload endpoint.",
+      "tags": [
+        "utility",
+        "upload"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:docs/superpowers/plans/mvp-implementation-plan.md",
+      "type": "document",
+      "name": "mvp-implementation-plan.md",
+      "filePath": "docs/superpowers/plans/mvp-implementation-plan.md",
+      "summary": "MVP implementation plan with 13 tasks covering project scaffolding, database schema, backend APIs, AI service layer, file upload, export, and all frontend pages.",
+      "tags": [
+        "documentation",
+        "planning",
+        "mvp"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:docs/superpowers/specs/2026-04-09-road-test-assistant-design.md",
+      "type": "document",
+      "name": "2026-04-09-road-test-assistant-design.md",
+      "filePath": "docs/superpowers/specs/2026-04-09-road-test-assistant-design.md",
+      "summary": "Living PRD covering project overview, data model, page flow, technical architecture, AI prompt design, MVP implementation status, and planned features for PC wide-screen adaptation.",
+      "tags": [
+        "documentation",
+        "prd",
+        "design",
+        "specification"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "config:server/.env.example",
+      "type": "config",
+      "name": ".env.example",
+      "filePath": "server/.env.example",
+      "summary": "Template environment file listing required ZHIPU_API_KEY and optional PORT configuration for the backend server.",
+      "tags": [
+        "configuration",
+        "environment",
+        "template"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/jest.config.js",
+      "type": "file",
+      "name": "jest.config.js",
+      "filePath": "server/jest.config.js",
+      "summary": "Jest test runner configuration for the server package.",
+      "tags": [
+        "test",
+        "configuration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:server/package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "server/package.json",
+      "summary": "Server package manifest with Express, better-sqlite3, multer, xlsx dependencies, and dev/build/test scripts using nodemon and Jest.",
+      "tags": [
+        "configuration",
+        "build-system",
+        "dependencies"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/src/app.js",
+      "type": "file",
+      "name": "app.js",
+      "filePath": "server/src/app.js",
+      "summary": "Express application entry point that configures middleware (CORS, JSON), mounts six API route modules, initializes the SQLite database, and conditionally starts the HTTP server.",
+      "tags": [
+        "entry-point",
+        "middleware",
+        "routing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server/src/models/database.js",
+      "type": "file",
+      "name": "database.js",
+      "filePath": "server/src/models/database.js",
+      "summary": "SQLite database initialization module using better-sqlite3, creating the three-table schema (projects, test_sessions, records) with foreign keys, WAL mode, and local timestamps.",
+      "tags": [
+        "data-model",
+        "database",
+        "schema"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses SQLite WAL mode for concurrent read performance and datetime('now','localtime') for non-UTC timestamps."
+    },
+    {
+      "id": "function:server/src/models/database.js:getDB",
+      "type": "function",
+      "name": "getDB",
+      "filePath": "server/src/models/database.js",
+      "lineRange": [
+        9,
+        20
+      ],
+      "summary": "Singleton database connection factory that lazily opens the SQLite database, enabling WAL mode and foreign key enforcement.",
+      "tags": [
+        "database",
+        "singleton",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/src/models/database.js:initDB",
+      "type": "function",
+      "name": "initDB",
+      "filePath": "server/src/models/database.js",
+      "lineRange": [
+        22,
+        71
+      ],
+      "summary": "Database schema initializer that creates the projects, test_sessions, and records tables with foreign key constraints if they do not already exist.",
+      "tags": [
+        "database",
+        "schema",
+        "migration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:client/pages/record/index.vue:toggleRecording",
+      "type": "function",
+      "name": "toggleRecording",
+      "filePath": "client/pages/record/index.vue",
+      "lineRange": [
+        181,
+        202
+      ],
+      "summary": "Toggles audio recording state using uni.getRecorderManager, starting with format/sampleRate config and GPS collection, or stopping the current recording.",
+      "tags": [
+        "recording",
+        "event-handler",
+        "asr"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:client/pages/record/index.vue:handleRecordingDone",
+      "type": "function",
+      "name": "handleRecordingDone",
+      "filePath": "client/pages/record/index.vue",
+      "lineRange": [
+        218,
+        242
+      ],
+      "summary": "Handles recording completion by uploading the audio file to the server for processing.",
+      "tags": [
+        "recording",
+        "upload",
+        "event-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:client/pages/record/index.vue:runAI",
+      "type": "function",
+      "name": "runAI",
+      "filePath": "client/pages/record/index.vue",
+      "lineRange": [
+        243,
+        262
+      ],
+      "summary": "Orchestrates AI processing pipeline: calls transcribeAudio for ASR, then extractFields for structured data extraction from the transcription.",
+      "tags": [
+        "ai-integration",
+        "asr",
+        "pipeline"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:client/pages/record/index.vue:submitRecord",
+      "type": "function",
+      "name": "submitRecord",
+      "filePath": "client/pages/record/index.vue",
+      "lineRange": [
+        263,
+        280
+      ],
+      "summary": "Submits or updates a record via the API, transitioning it from draft to submitted status.",
+      "tags": [
+        "data-management",
+        "submission"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:client/pages/session-detail/index.vue:createNewSession",
+      "type": "function",
+      "name": "createNewSession",
+      "filePath": "client/pages/session-detail/index.vue",
+      "lineRange": [
+        166,
+        195
+      ],
+      "summary": "Creates a new test session via API with form data including tester name, date, vehicle info, and route, then navigates to the session detail.",
+      "tags": [
+        "data-management",
+        "session",
+        "form"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:client/pages/session-detail/index.vue:endSession",
+      "type": "function",
+      "name": "endSession",
+      "filePath": "client/pages/session-detail/index.vue",
+      "lineRange": [
+        196,
+        211
+      ],
+      "summary": "Ends an active test session by updating its status to 'completed' via the API.",
+      "tags": [
+        "data-management",
+        "session"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:client/pages/export/index.vue:doExport",
+      "type": "function",
+      "name": "doExport",
+      "filePath": "client/pages/export/index.vue",
+      "lineRange": [
+        98,
+        144
+      ],
+      "summary": "Triggers Excel or CSV export for the selected session, using platform-conditional compilation for H5 browser download vs native file opening.",
+      "tags": [
+        "export",
+        "data-management",
+        "platform-specific"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server/src/models/queries.js",
+      "type": "file",
+      "name": "queries.js",
+      "filePath": "server/src/models/queries.js",
+      "summary": "Central data access layer providing all CRUD operations for projects, test sessions, and records using raw SQL via better-sqlite3. Implements the 3-tier data model with parameterized queries and local timestamps.",
+      "tags": [
+        "data-access",
+        "crud",
+        "sql",
+        "service"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses better-sqlite3 prepared statements. All timestamps use datetime('now','localtime') instead of CURRENT_TIMESTAMP to avoid UTC."
+    },
+    {
+      "id": "function:server/src/models/queries.js:getAllProjects",
+      "type": "function",
+      "name": "getAllProjects",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        5,
+        8
+      ],
+      "summary": "Returns all projects ordered by creation date descending.",
+      "tags": [
+        "query",
+        "read"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/src/models/queries.js:getProjectById",
+      "type": "function",
+      "name": "getProjectById",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        10,
+        13
+      ],
+      "summary": "Fetches a single project by its ID.",
+      "tags": [
+        "query",
+        "read"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/src/models/queries.js:createProject",
+      "type": "function",
+      "name": "createProject",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        15,
+        19
+      ],
+      "summary": "Inserts a new project and returns the created record.",
+      "tags": [
+        "mutation",
+        "create"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/src/models/queries.js:updateProject",
+      "type": "function",
+      "name": "updateProject",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        21,
+        26
+      ],
+      "summary": "Updates project name and tech lead with local timestamp.",
+      "tags": [
+        "mutation",
+        "update"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/src/models/queries.js:getAllSessions",
+      "type": "function",
+      "name": "getAllSessions",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        30,
+        36
+      ],
+      "summary": "Returns test sessions optionally filtered by project ID, ordered by test date.",
+      "tags": [
+        "query",
+        "read"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/src/models/queries.js:getSessionById",
+      "type": "function",
+      "name": "getSessionById",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        38,
+        41
+      ],
+      "summary": "Fetches a single test session by its ID.",
+      "tags": [
+        "query",
+        "read"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/src/models/queries.js:createSession",
+      "type": "function",
+      "name": "createSession",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        43,
+        49
+      ],
+      "summary": "Inserts a new test session linked to a project.",
+      "tags": [
+        "mutation",
+        "create"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/src/models/queries.js:updateSession",
+      "type": "function",
+      "name": "updateSession",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        51,
+        66
+      ],
+      "summary": "Updates session fields with partial-update semantics, falling back to existing values for missing fields.",
+      "tags": [
+        "mutation",
+        "update"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:server/src/models/queries.js:getRecordsBySession",
+      "type": "function",
+      "name": "getRecordsBySession",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        70,
+        73
+      ],
+      "summary": "Returns all records for a given session ordered by creation date.",
+      "tags": [
+        "query",
+        "read"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/src/models/queries.js:getRecordById",
+      "type": "function",
+      "name": "getRecordById",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        75,
+        78
+      ],
+      "summary": "Fetches a single record by its ID.",
+      "tags": [
+        "query",
+        "read"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/src/models/queries.js:createRecord",
+      "type": "function",
+      "name": "createRecord",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        80,
+        106
+      ],
+      "summary": "Inserts a new record with all structured fields including GPS, weather, audio URL, and AI-extracted data. Serializes attachments to JSON.",
+      "tags": [
+        "mutation",
+        "create",
+        "serialization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:server/src/models/queries.js:updateRecord",
+      "type": "function",
+      "name": "updateRecord",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        108,
+        135
+      ],
+      "summary": "Dynamically builds an UPDATE statement for only the provided fields against a whitelist of allowed columns. Handles JSON serialization for attachments.",
+      "tags": [
+        "mutation",
+        "update",
+        "serialization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:server/src/models/queries.js:getSubmittedRecordsBySession",
+      "type": "function",
+      "name": "getSubmittedRecordsBySession",
+      "filePath": "server/src/models/queries.js",
+      "lineRange": [
+        137,
+        141
+      ],
+      "summary": "Returns only submitted-status records for a session, used by the export feature.",
+      "tags": [
+        "query",
+        "read",
+        "export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/src/routes/ai.js",
+      "type": "file",
+      "name": "ai.js",
+      "filePath": "server/src/routes/ai.js",
+      "summary": "Express router exposing three AI endpoints: speech-to-text transcription, structured field extraction from text, and a combined pipeline that transcribes, extracts, and updates a record in one call.",
+      "tags": [
+        "api-handler",
+        "ai",
+        "router",
+        "middleware"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server/src/routes/export.js",
+      "type": "file",
+      "name": "export.js",
+      "filePath": "server/src/routes/export.js",
+      "summary": "Express router providing Excel (.xlsx) and CSV export endpoints for submitted test records within a session. Uses the xlsx library to generate spreadsheets with Chinese headers and BOM-prefixed CSV.",
+      "tags": [
+        "api-handler",
+        "export",
+        "router",
+        "serialization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server/src/routes/projects.js",
+      "type": "file",
+      "name": "projects.js",
+      "filePath": "server/src/routes/projects.js",
+      "summary": "Express router for project CRUD: list all, create, and get by ID. Delegates to the queries layer for all database operations.",
+      "tags": [
+        "api-handler",
+        "router",
+        "crud"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/src/routes/records.js",
+      "type": "file",
+      "name": "records.js",
+      "filePath": "server/src/routes/records.js",
+      "summary": "Express router for record CRUD: list by session, create, get by ID, and update. Supports partial updates via the queries layer.",
+      "tags": [
+        "api-handler",
+        "router",
+        "crud"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/src/routes/sessions.js",
+      "type": "file",
+      "name": "sessions.js",
+      "filePath": "server/src/routes/sessions.js",
+      "summary": "Express router for test session CRUD: list with optional project filter, create, get by ID, and update. Validates required fields on creation.",
+      "tags": [
+        "api-handler",
+        "router",
+        "crud"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/src/routes/upload.js",
+      "type": "file",
+      "name": "upload.js",
+      "filePath": "server/src/routes/upload.js",
+      "summary": "Express router handling single and multiple file uploads via multer. Stores files in the uploads directory with timestamped names, enforcing a whitelist of audio and image extensions with a 100MB size limit.",
+      "tags": [
+        "api-handler",
+        "upload",
+        "router",
+        "file-handling"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server/src/services/ai-service.js",
+      "type": "file",
+      "name": "ai-service.js",
+      "filePath": "server/src/services/ai-service.js",
+      "summary": "Singleton adapter manager that auto-selects an AI provider (ZhiPu, Qwen, or Mock) based on environment variables. Provides a unified facade for speechToText and extractFields, resolving /uploads/ URLs to filesystem paths.",
+      "tags": [
+        "service",
+        "adapter",
+        "singleton",
+        "factory"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Implements the Strategy pattern via pluggable adapters. The setAdapter function enables dependency injection for testing."
+    },
+    {
+      "id": "function:server/src/services/ai-service.js:resolveAudioUrl",
+      "type": "function",
+      "name": "resolveAudioUrl",
+      "filePath": "server/src/services/ai-service.js",
+      "lineRange": [
+        6,
+        11
+      ],
+      "summary": "Converts relative /uploads/ URLs to absolute filesystem paths for local file access by AI adapters.",
+      "tags": [
+        "utility",
+        "file-handling"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/src/services/ai-service.js:getAdapter",
+      "type": "function",
+      "name": "getAdapter",
+      "filePath": "server/src/services/ai-service.js",
+      "lineRange": [
+        17,
+        33
+      ],
+      "summary": "Returns the singleton AI adapter instance, lazily initializing it based on ZHIPU_API_KEY or DASHSCOPE_API_KEY environment variables, falling back to MockAdapter.",
+      "tags": [
+        "factory",
+        "singleton",
+        "configuration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:server/src/services/ai-service.js:speechToText",
+      "type": "function",
+      "name": "speechToText",
+      "filePath": "server/src/services/ai-service.js",
+      "lineRange": [
+        39,
+        41
+      ],
+      "summary": "Delegates speech-to-text transcription to the current adapter after resolving the audio URL.",
+      "tags": [
+        "delegation",
+        "ai"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/src/services/ai-service.js:extractFields",
+      "type": "function",
+      "name": "extractFields",
+      "filePath": "server/src/services/ai-service.js",
+      "lineRange": [
+        43,
+        45
+      ],
+      "summary": "Delegates structured field extraction to the current adapter.",
+      "tags": [
+        "delegation",
+        "ai"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/src/services/base-adapter.js",
+      "type": "file",
+      "name": "base-adapter.js",
+      "filePath": "server/src/services/base-adapter.js",
+      "summary": "Abstract base class defining the AI adapter interface with two methods: speechToText and extractFields. Subclasses must implement both methods.",
+      "tags": [
+        "adapter",
+        "interface",
+        "type-definition"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:server/src/services/base-adapter.js:BaseAIAdapter",
+      "type": "class",
+      "name": "BaseAIAdapter",
+      "filePath": "server/src/services/base-adapter.js",
+      "lineRange": [
+        4,
+        22
+      ],
+      "summary": "Abstract base class for AI adapters. Defines speechToText and extractFields as required methods that throw if not overridden.",
+      "tags": [
+        "adapter",
+        "abstract",
+        "interface"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/src/services/mock-adapter.js",
+      "type": "file",
+      "name": "mock-adapter.js",
+      "filePath": "server/src/services/mock-adapter.js",
+      "summary": "Test double for AI adapters returning fixed responses for speechToText and extractFields. Used in development and testing when no API key is configured.",
+      "tags": [
+        "adapter",
+        "test",
+        "mock"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:server/src/services/mock-adapter.js:MockAdapter",
+      "type": "class",
+      "name": "MockAdapter",
+      "filePath": "server/src/services/mock-adapter.js",
+      "lineRange": [
+        3,
+        16
+      ],
+      "summary": "Mock AI adapter that returns hardcoded Chinese road test data for testing purposes.",
+      "tags": [
+        "adapter",
+        "test",
+        "mock"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/src/services/qwen-adapter.js",
+      "type": "file",
+      "name": "qwen-adapter.js",
+      "filePath": "server/src/services/qwen-adapter.js",
+      "summary": "Qwen/DashScope adapter implementing speech-to-text via qwen3-asr-flash and field extraction via qwen-plus chat model. Uses native fetch with JSON payloads for both ASR and LLM calls.",
+      "tags": [
+        "adapter",
+        "ai",
+        "service",
+        "api-client"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:server/src/services/qwen-adapter.js:QwenAdapter",
+      "type": "class",
+      "name": "QwenAdapter",
+      "filePath": "server/src/services/qwen-adapter.js",
+      "lineRange": [
+        19,
+        101
+      ],
+      "summary": "AI adapter for Alibaba's Qwen/DashScope API. Sends audio as input_audio content for ASR and uses structured JSON extraction with the qwen-plus model for field parsing.",
+      "tags": [
+        "adapter",
+        "ai",
+        "api-client"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server/src/services/zhipu-adapter.js",
+      "type": "file",
+      "name": "zhipu-adapter.js",
+      "filePath": "server/src/services/zhipu-adapter.js",
+      "summary": "ZhiPu GLM adapter implementing speech-to-text via glm-asr-2512 and field extraction via glm-4-flash. Handles local files, URLs, and base64 audio inputs using multipart form uploads.",
+      "tags": [
+        "adapter",
+        "ai",
+        "service",
+        "api-client"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses form-data npm package with getBuffer() + explicit Content-Length because Node.js native fetch does not support streaming form-data. Handles three audio input modes: local file path, HTTP URL, and base64 data URI."
+    },
+    {
+      "id": "class:server/src/services/zhipu-adapter.js:ZhiPuAdapter",
+      "type": "class",
+      "name": "ZhiPuAdapter",
+      "filePath": "server/src/services/zhipu-adapter.js",
+      "lineRange": [
+        21,
+        173
+      ],
+      "summary": "AI adapter for ZhiPu's GLM API. Implements speechToText with multipart form uploads supporting local files, URLs, and base64 audio, plus extractFields using the GLM chat completions endpoint.",
+      "tags": [
+        "adapter",
+        "ai",
+        "api-client"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:server/tests/ai-service.test.js",
+      "type": "file",
+      "name": "ai-service.test.js",
+      "filePath": "server/tests/ai-service.test.js",
+      "summary": "Tests the AI service singleton layer including mock adapter delegation, pluggable adapter switching, and QwenAdapter constructor defaults.",
+      "tags": [
+        "test",
+        "ai",
+        "adapter"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/tests/api-projects-sessions.test.js",
+      "type": "file",
+      "name": "api-projects-sessions.test.js",
+      "filePath": "server/tests/api-projects-sessions.test.js",
+      "summary": "Integration tests for the projects and sessions API endpoints using supertest. Covers CRUD operations, validation, filtering, and error cases with a temporary SQLite database.",
+      "tags": [
+        "test",
+        "integration",
+        "api-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server/tests/api-records.test.js",
+      "type": "file",
+      "name": "api-records.test.js",
+      "filePath": "server/tests/api-records.test.js",
+      "summary": "Integration tests for the records API endpoints including CRUD operations, status transitions, partial updates, and JSON attachment serialization with a temporary SQLite database.",
+      "tags": [
+        "test",
+        "integration",
+        "api-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server/tests/api-upload-export.test.js",
+      "type": "file",
+      "name": "api-upload-export.test.js",
+      "filePath": "server/tests/api-upload-export.test.js",
+      "summary": "Integration tests for file upload and data export endpoints. Tests single/multi file upload, Excel and CSV export with correct headers and content, and error handling for missing parameters.",
+      "tags": [
+        "test",
+        "integration",
+        "export"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server/tests/database.test.js",
+      "type": "file",
+      "name": "database.test.js",
+      "filePath": "server/tests/database.test.js",
+      "summary": "Tests the database initialization module verifying table creation (projects, test_sessions, records), foreign key constraints, and default timestamp behavior.",
+      "tags": [
+        "test",
+        "database",
+        "integration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server/tests/queries.test.js",
+      "type": "file",
+      "name": "queries.test.js",
+      "filePath": "server/tests/queries.test.js",
+      "summary": "Unit tests for all query functions covering projects, sessions, and records CRUD operations, partial update logic, attachment serialization, and the submitted-records filter used by export.",
+      "tags": [
+        "test",
+        "unit",
+        "data-access"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:server/src/app.js",
+      "target": "file:server/src/models/database.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/app.js",
+      "target": "file:server/src/routes/ai.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/app.js",
+      "target": "file:server/src/routes/export.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/app.js",
+      "target": "file:server/src/routes/projects.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/app.js",
+      "target": "file:server/src/routes/records.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/app.js",
+      "target": "file:server/src/routes/sessions.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/app.js",
+      "target": "file:server/src/routes/upload.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/app.js",
+      "target": "function:server/src/models/database.js:initDB",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/database.js",
+      "target": "function:server/src/models/database.js:getDB",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/database.js",
+      "target": "function:server/src/models/database.js:initDB",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:client/services/api.js",
+      "target": "function:client/services/api.js:request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:client/services/api.js",
+      "target": "function:client/services/api.js:uploadFile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:client/pages/record/index.vue",
+      "target": "function:client/pages/record/index.vue:toggleRecording",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:client/pages/record/index.vue",
+      "target": "function:client/pages/record/index.vue:handleRecordingDone",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:client/pages/record/index.vue",
+      "target": "function:client/pages/record/index.vue:runAI",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:client/pages/record/index.vue",
+      "target": "function:client/pages/record/index.vue:submitRecord",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:client/pages/session-detail/index.vue",
+      "target": "function:client/pages/session-detail/index.vue:createNewSession",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:client/pages/session-detail/index.vue",
+      "target": "function:client/pages/session-detail/index.vue:endSession",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:client/pages/export/index.vue",
+      "target": "function:client/pages/export/index.vue:doExport",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:client/pages/record/index.vue",
+      "target": "file:client/services/api.js",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:client/pages/export/index.vue",
+      "target": "file:client/services/api.js",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:client/pages/index/index.vue",
+      "target": "file:client/services/api.js",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:client/pages/session-detail/index.vue",
+      "target": "file:client/services/api.js",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:server/src/app.js",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CLAUDE.md",
+      "target": "file:server/src/app.js",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CLAUDE.md",
+      "target": "file:client/pages/record/index.vue",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CLAUDE.md",
+      "target": "file:client/services/api.js",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CLAUDE.md",
+      "target": "file:server/src/models/database.js",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:client/manifest.json",
+      "target": "file:client/main.js",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:client/pages.json",
+      "target": "file:client/pages/index/index.vue",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:client/pages.json",
+      "target": "file:client/pages/session-detail/index.vue",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:client/pages.json",
+      "target": "file:client/pages/record/index.vue",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:client/pages.json",
+      "target": "file:client/pages/export/index.vue",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:server/.env.example",
+      "target": "file:server/src/app.js",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:server/package.json",
+      "target": "file:server/src/app.js",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:server/package.json",
+      "target": "file:server/jest.config.js",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:docs/superpowers/specs/2026-04-09-road-test-assistant-design.md",
+      "target": "file:server/src/models/database.js",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/superpowers/specs/2026-04-09-road-test-assistant-design.md",
+      "target": "file:client/pages/record/index.vue",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/superpowers/plans/mvp-implementation-plan.md",
+      "target": "file:server/src/models/database.js",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/superpowers/plans/mvp-implementation-plan.md",
+      "target": "file:server/src/app.js",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:getAllProjects",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:getProjectById",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:createProject",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:updateProject",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:getAllSessions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:getSessionById",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:createSession",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:updateSession",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:getRecordsBySession",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:getRecordById",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:createRecord",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:updateRecord",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "function:server/src/models/queries.js:getSubmittedRecordsBySession",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/models/queries.js",
+      "target": "file:server/src/models/database.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/routes/ai.js",
+      "target": "file:server/src/models/queries.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/routes/ai.js",
+      "target": "file:server/src/services/ai-service.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/routes/export.js",
+      "target": "file:server/src/models/queries.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/routes/projects.js",
+      "target": "file:server/src/models/queries.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/routes/records.js",
+      "target": "file:server/src/models/queries.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/routes/sessions.js",
+      "target": "file:server/src/models/queries.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/services/ai-service.js",
+      "target": "file:server/src/services/mock-adapter.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/services/ai-service.js",
+      "target": "file:server/src/services/qwen-adapter.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/services/ai-service.js",
+      "target": "file:server/src/services/zhipu-adapter.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/services/ai-service.js",
+      "target": "function:server/src/services/ai-service.js:resolveAudioUrl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/services/ai-service.js",
+      "target": "function:server/src/services/ai-service.js:getAdapter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/services/ai-service.js",
+      "target": "function:server/src/services/ai-service.js:speechToText",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/services/ai-service.js",
+      "target": "function:server/src/services/ai-service.js:extractFields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/services/mock-adapter.js",
+      "target": "file:server/src/services/base-adapter.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/services/mock-adapter.js",
+      "target": "class:server/src/services/mock-adapter.js:MockAdapter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/services/qwen-adapter.js",
+      "target": "file:server/src/services/base-adapter.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/services/qwen-adapter.js",
+      "target": "class:server/src/services/qwen-adapter.js:QwenAdapter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/services/zhipu-adapter.js",
+      "target": "file:server/src/services/base-adapter.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/src/services/zhipu-adapter.js",
+      "target": "class:server/src/services/zhipu-adapter.js:ZhiPuAdapter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:server/src/services/base-adapter.js",
+      "target": "class:server/src/services/base-adapter.js:BaseAIAdapter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "class:server/src/services/mock-adapter.js:MockAdapter",
+      "target": "class:server/src/services/base-adapter.js:BaseAIAdapter",
+      "type": "inherits",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "class:server/src/services/qwen-adapter.js:QwenAdapter",
+      "target": "class:server/src/services/base-adapter.js:BaseAIAdapter",
+      "type": "inherits",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "class:server/src/services/zhipu-adapter.js:ZhiPuAdapter",
+      "target": "class:server/src/services/base-adapter.js:BaseAIAdapter",
+      "type": "inherits",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "file:server/tests/ai-service.test.js",
+      "target": "file:server/src/services/ai-service.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/tests/ai-service.test.js",
+      "target": "file:server/src/services/mock-adapter.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/tests/ai-service.test.js",
+      "target": "file:server/src/services/qwen-adapter.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/tests/ai-service.test.js",
+      "target": "file:server/src/services/ai-service.js",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:server/tests/api-projects-sessions.test.js",
+      "target": "file:server/src/models/database.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/tests/api-projects-sessions.test.js",
+      "target": "file:server/src/routes/projects.js",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:server/tests/api-projects-sessions.test.js",
+      "target": "file:server/src/routes/sessions.js",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:server/tests/api-records.test.js",
+      "target": "file:server/src/models/database.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/tests/api-records.test.js",
+      "target": "file:server/src/routes/records.js",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:server/tests/api-upload-export.test.js",
+      "target": "file:server/src/models/database.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/tests/api-upload-export.test.js",
+      "target": "file:server/src/routes/upload.js",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:server/tests/api-upload-export.test.js",
+      "target": "file:server/src/routes/export.js",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:server/tests/database.test.js",
+      "target": "file:server/src/models/database.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/tests/database.test.js",
+      "target": "file:server/src/models/database.js",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:server/tests/queries.test.js",
+      "target": "file:server/src/models/database.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/tests/queries.test.js",
+      "target": "file:server/src/models/queries.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/tests/queries.test.js",
+      "target": "file:server/src/models/queries.js",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:server/src/routes/ai.js",
+      "target": "file:server/src/services/ai-service.js",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:server/src/routes/ai.js",
+      "target": "file:server/src/models/queries.js",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:server/src/routes/export.js",
+      "target": "file:server/src/models/queries.js",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:server/src/services/ai-service.js",
+      "target": "file:server/src/services/base-adapter.js",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:api",
+      "name": "API Layer",
+      "description": "Express route handlers for projects, sessions, records, AI transcription, file upload, and Excel/CSV export endpoints",
+      "nodeIds": [
+        "file:server/src/routes/ai.js",
+        "file:server/src/routes/export.js",
+        "file:server/src/routes/projects.js",
+        "file:server/src/routes/records.js",
+        "file:server/src/routes/sessions.js",
+        "file:server/src/routes/upload.js"
+      ]
+    },
+    {
+      "id": "layer:data",
+      "name": "Data Layer",
+      "description": "SQLite schema definition (better-sqlite3) and raw SQL CRUD operations for the three-tier data model (projects, sessions, records)",
+      "nodeIds": [
+        "file:server/src/models/database.js",
+        "file:server/src/models/queries.js"
+      ]
+    },
+    {
+      "id": "layer:service",
+      "name": "Service Layer",
+      "description": "AI speech-to-text and field extraction adapters (ZhiPu, Qwen, Mock) with a selector singleton and abstract base class",
+      "nodeIds": [
+        "file:server/src/services/ai-service.js",
+        "file:server/src/services/base-adapter.js",
+        "file:server/src/services/mock-adapter.js",
+        "file:server/src/services/qwen-adapter.js",
+        "file:server/src/services/zhipu-adapter.js"
+      ]
+    },
+    {
+      "id": "layer:ui",
+      "name": "Frontend UI Layer",
+      "description": "UniApp + Vue3 pages (session list, session detail, voice recording, export), app shell components, and HTTP client for backend API calls",
+      "nodeIds": [
+        "file:client/App.vue",
+        "file:client/index.html",
+        "file:client/main.js",
+        "file:client/pages/export/index.vue",
+        "file:client/pages/index/index.vue",
+        "file:client/pages/record/index.vue",
+        "file:client/pages/session-detail/index.vue",
+        "file:client/services/api.js"
+      ]
+    },
+    {
+      "id": "layer:config",
+      "name": "Configuration Layer",
+      "description": "Project and app configuration files including UniApp manifest, page routing, server package manifest, environment template, and Express app entry point that mounts routes and initializes the database",
+      "nodeIds": [
+        "config:client/manifest.json",
+        "config:client/pages.json",
+        "config:server/.env.example",
+        "config:server/package.json",
+        "file:server/src/app.js"
+      ]
+    },
+    {
+      "id": "layer:test",
+      "name": "Test Layer",
+      "description": "Jest + supertest integration tests covering AI service adapters, API endpoints (projects, sessions, records, upload, export), database schema, and query functions",
+      "nodeIds": [
+        "file:server/jest.config.js",
+        "file:server/tests/ai-service.test.js",
+        "file:server/tests/api-projects-sessions.test.js",
+        "file:server/tests/api-records.test.js",
+        "file:server/tests/api-upload-export.test.js",
+        "file:server/tests/database.test.js",
+        "file:server/tests/queries.test.js"
+      ]
+    },
+    {
+      "id": "layer:documentation",
+      "name": "Documentation Layer",
+      "description": "Project documentation including README, Claude Code instructions, MVP implementation plan, and product requirements specification",
+      "nodeIds": [
+        "document:CLAUDE.md",
+        "document:README.md",
+        "document:docs/superpowers/plans/mvp-implementation-plan.md",
+        "document:docs/superpowers/specs/2026-04-09-road-test-assistant-design.md"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Project Overview",
+      "description": "The README introduces this project as a Road Test Assistant for autonomous driving/ADAS scenarios. A co-driver records issues via voice, and AI automatically extracts structured information into test cases. The system is split into two independent apps: a Node.js + Express backend (server/) and a UniApp + Vue3 frontend (client/). This tour will walk through both, starting from the server core and moving outward to the frontend and tests.",
+      "nodeIds": [
+        "document:README.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Express Application Entry Point",
+      "description": "The server's app.js is the highest fan-out node in the entire codebase (7 outgoing edges). It bootstraps the Express application by initializing the database, mounting six route modules (projects, sessions, records, upload, export, and AI), and wiring up middleware. This single file reveals the server's full runtime structure -- every API capability is registered here.",
+      "nodeIds": [
+        "file:server/src/app.js"
+      ],
+      "languageLesson": "Express apps follow a pattern of create -> configure middleware -> mount routers -> listen. Keeping the entry point as a pure wiring file (no business logic) makes the architecture immediately visible to anyone reading the code."
+    },
+    {
+      "order": 3,
+      "title": "Database Schema and Data Access",
+      "description": "The data layer consists of two tightly coupled files: database.js initializes SQLite with the three-table schema (projects, test_sessions, records) and enforces foreign keys, while queries.js provides all CRUD operations as plain functions. queries.js is the most depended-upon file in the entire codebase (fan-in of 5) -- every route handler goes through it to access data. Together they form a hand-rolled ORM layer with no external dependencies.",
+      "nodeIds": [
+        "file:server/src/models/database.js",
+        "file:server/src/models/queries.js"
+      ],
+      "languageLesson": "better-sqlite3 provides synchronous SQLite access in Node.js, which simplifies data access code compared to async drivers. Wrapping all SQL in a queries module creates a clean separation: route handlers never write raw SQL, and schema changes only touch database.js."
+    },
+    {
+      "order": 4,
+      "title": "CRUD Route Handlers",
+      "description": "The three core route modules -- projects.js, sessions.js, and records.js -- implement standard REST CRUD endpoints. Each imports queries.js for data access and maps HTTP verbs to database operations. Together with upload.js (which handles audio file uploads via multer), these routes form the API Layer that the frontend consumes. The hierarchical data model (projects -> sessions -> records) is reflected in the URL structure.",
+      "nodeIds": [
+        "file:server/src/routes/projects.js",
+        "file:server/src/routes/sessions.js",
+        "file:server/src/routes/records.js",
+        "file:server/src/routes/upload.js"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "AI Adapter Pattern",
+      "description": "The AI service layer uses a classic adapter pattern. base-adapter.js defines an abstract interface with speechToText() and extractFields() methods. ai-service.js is a singleton that auto-selects the active adapter based on environment variables (ZHIPU_API_KEY or DASHSCOPE_API_KEY). Three concrete adapters -- zhipu-adapter.js, qwen-adapter.js, and mock-adapter.js -- each implement the interface for a different AI provider. This pattern lets you switch AI backends by changing a single environment variable.",
+      "nodeIds": [
+        "file:server/src/services/ai-service.js",
+        "file:server/src/services/base-adapter.js"
+      ],
+      "languageLesson": "The adapter pattern in JavaScript uses ES6 classes with shared method signatures. The singleton in ai-service.js lazily initializes on first access, reading environment variables at runtime rather than import time -- this makes testing easier since you can set env vars before requiring the module."
+    },
+    {
+      "order": 6,
+      "title": "AI Route and Provider Implementations",
+      "description": "The ai.js route wires the AI adapter into the Express API, exposing endpoints for speech-to-text, field extraction, and a combined pipeline. Behind it, the three concrete adapters each handle the specifics of their AI provider's API: ZhiPu uses GLM with a form-data workaround for Node.js native fetch, Qwen uses DashScope's API, and mock-adapter.js returns fixed responses for deterministic testing. The export.js route rounds out the API layer, converting records to Excel or CSV format.",
+      "nodeIds": [
+        "file:server/src/routes/ai.js",
+        "file:server/src/services/zhipu-adapter.js",
+        "file:server/src/services/qwen-adapter.js",
+        "file:server/src/services/mock-adapter.js"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Frontend Configuration and Routing",
+      "description": "The frontend is a HBuilderX-managed UniApp project. pages.json defines the four-page routing structure and tab bar (home, session detail, record, export), while manifest.json configures the H5 dev server to proxy /api requests to the backend. These config files determine which Vue pages are loaded and how the frontend communicates with the server from Step 2.",
+      "nodeIds": [
+        "config:client/pages.json",
+        "config:client/manifest.json"
+      ],
+      "languageLesson": "UniApp uses pages.json instead of Vue Router for page configuration. The manifest.json proxy setting is only needed for H5 (browser) development -- when running as a native app, the frontend connects directly to the server IP configured in api.js."
+    },
+    {
+      "order": 8,
+      "title": "Frontend API Service Layer",
+      "description": "api.js is the centralized HTTP client that every frontend page depends on (fan-in of 4). It wraps all backend API calls into simple async functions, providing a single point to manage base URLs and request formatting. Each page imports only the functions it needs from this module.",
+      "nodeIds": [
+        "file:client/services/api.js"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Session Management Pages",
+      "description": "The home page (index/index.vue) displays test sessions grouped by project, serving as the app's landing screen. The session-detail/index.vue serves a dual purpose: it shows an existing session's records when accessed normally, and displays a creation form when opened with ?new=1. This dual-purpose pattern reduces page count while keeping the user flow simple -- from the home screen you can view sessions or create new ones.",
+      "nodeIds": [
+        "file:client/pages/index/index.vue",
+        "file:client/pages/session-detail/index.vue"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Core Recording Page",
+      "description": "The record/index.vue page is the heart of the application -- this is where the co-driver's workflow happens. It uses UniApp's RecorderManager to capture audio, uploads the recording to the server (Step 4's upload route), sends it through the AI pipeline (Step 6's ASR + extraction), and collects GPS coordinates. The entire voice-to-structured-data flow converges in this single page.",
+      "nodeIds": [
+        "file:client/pages/record/index.vue"
+      ],
+      "languageLesson": "UniApp's RecorderManager abstracts platform-specific audio recording APIs (Web Audio API on H5, native recorder on mobile). Conditional compilation directives like // #ifdef H5 let you write platform-specific download logic without separate codebases."
+    },
+    {
+      "order": 11,
+      "title": "Export and Environment Configuration",
+      "description": "The export page (export/index.vue) lets users download session data as Excel or CSV files, using conditional compilation for browser vs native app download behavior. On the server side, .env.example documents the required environment variables -- setting ZHIPU_API_KEY or DASHSCOPE_API_KEY controls which AI adapter (Step 5) gets activated. Together these files represent the user-facing output capability and the deployment configuration that drives AI provider selection.",
+      "nodeIds": [
+        "file:client/pages/export/index.vue",
+        "config:server/.env.example"
+      ]
+    },
+    {
+      "order": 12,
+      "title": "Server Test Suite",
+      "description": "The test layer validates the entire backend stack. database.test.js and queries.test.js unit-test the data layer (Step 3). api-projects-sessions.test.js, api-records.test.js, and api-upload-export.test.js use supertest for integration tests against the route handlers (Steps 4 and 6). ai-service.test.js verifies the adapter selection logic (Step 5). Each test file creates its own in-memory SQLite database, ensuring full isolation between test runs.",
+      "nodeIds": [
+        "file:server/tests/database.test.js",
+        "file:server/tests/queries.test.js",
+        "file:server/tests/ai-service.test.js"
+      ],
+      "languageLesson": "Jest tests for Express apps typically export the app without calling listen(), allowing supertest to make HTTP requests programmatically. Using in-memory SQLite (:memory:) for tests avoids file I/O and ensures each test starts with a clean schema."
+    }
+  ]
+}
