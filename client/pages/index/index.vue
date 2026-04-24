@@ -1,62 +1,46 @@
 <template>
-  <view class="page">
+  <view :style="themeVars" class="page">
+    <!-- Hero: compact title + archive link -->
     <view class="hero">
-      <text class="page-title">我的项目</text>
-      <text class="page-subtitle">按项目管理路试试验，进入项目后查看和创建试验</text>
-    </view>
-
-    <view class="toolbar">
-      <t-button theme="default" variant="outline" size="small" @click="goToArchived">
-        归档项目
-      </t-button>
-    </view>
-
-    <view class="stats-grid">
-      <view class="stat-card">
-        <text class="stat-value">{{ projects.length }}</text>
-        <text class="stat-label">进行中项目</text>
+      <view class="hero-row">
+        <text class="page-title">我的项目</text>
+        <text class="archive-link" @click="goToArchived">归档项目 ›</text>
       </view>
-      <view class="stat-card">
-        <text class="stat-value">{{ activeSessionCount }}</text>
-        <text class="stat-label">进行中试验</text>
-      </view>
-      <view class="stat-card">
-        <text class="stat-value">{{ currentWeekProjects }}</text>
-        <text class="stat-label">本周新增项目</text>
+      <view class="stats-badges">
+        <text class="badge badge-primary">{{ projects.length }} 进行中</text>
+        <text class="badge badge-muted">{{ activeSessionCount }} 试验中</text>
+        <text v-if="currentWeekProjects > 0" class="badge badge-success">+{{ currentWeekProjects }} 本周</text>
       </view>
     </view>
 
-    <view v-if="projects.length === 0" class="empty-wrap">
+    <!-- Search bar (UI only) -->
+    <view class="search-bar">🔍 搜索项目名称或编号…</view>
+
+    <!-- Empty State -->
+    <view v-if="projects.length === 0" class="card empty-wrap">
       <text class="empty-title">还没有项目</text>
       <text class="empty-desc">先创建一个项目，再在项目内管理试验与记录</text>
       <t-button theme="primary" block @click="goToCreateProject">创建项目</t-button>
     </view>
 
+    <!-- Project List -->
     <view v-else class="project-list">
       <view
         v-for="project in enrichedProjects"
         :key="project.id"
-        class="project-card"
+        class="card project-card"
       >
         <view class="project-card-main" @click="goToProject(project.id)">
-          <view class="project-card-head">
+          <view class="project-row1">
             <text class="project-name">{{ project.name }}</text>
             <t-tag theme="primary" variant="light" size="small">{{ project.code }}</t-tag>
           </view>
-          <text class="project-meta">技术负责人：{{ project.tech_lead || '未填写' }}</text>
-          <view class="project-stats">
-            <t-tag size="small" variant="light" theme="default">试验 {{ project.sessionCount }}</t-tag>
-            <t-tag size="small" variant="light" :theme="project.activeSessions > 0 ? 'success' : 'default'">
-              进行中 {{ project.activeSessions }}
-            </t-tag>
-          </view>
-          <text class="project-meta">最近试验：{{ project.lastSessionDate || '暂无试验' }}</text>
+          <text class="project-meta">{{ project.tech_lead || '未填写' }} · {{ project.sessionCount }}试验 · {{ project.activeSessions }}进行中 · 最近：{{ project.lastSessionDate || '暂无' }}</text>
         </view>
 
         <view class="project-actions">
-          <t-button size="small" variant="outline" @click="goToEditProject(project.id)">编辑</t-button>
-          <t-button size="small" variant="outline" @click="handleArchiveProject(project)">归档</t-button>
-          <t-button size="small" theme="danger" variant="outline" @click="handleDeleteProject(project)">删除</t-button>
+          <t-button size="small" theme="primary" @click="goToProject(project.id)">查看项目</t-button>
+          <t-button size="small" variant="outline" @click="handleMoreAction(project)">⋮ 更多</t-button>
         </view>
       </view>
     </view>
@@ -70,7 +54,6 @@ import { archiveProject, deleteProject, getProjects, getSessions } from '../../s
 
 function isSameWeek(dateText) {
   if (!dateText) return false;
-  // 兼容 iOS：将 "2026-04-10 23:15:19" 转为 "2026/04/10 23:15:19"
   const source = new Date(dateText.replace(/-/g, '/'));
   const now = new Date();
   const start = new Date(now);
@@ -89,6 +72,9 @@ export default {
     };
   },
   computed: {
+    themeVars() {
+      return '--td-brand-color: #1E293B; --td-brand-color-light: #E8EAF0; --td-error-color: #DC2626; --td-success-color: #059669; --td-warning-color: #D97706; --td-bg-color-page: #F3F5F7; --td-bg-color-container: #FFFFFF; --td-text-color-primary: #0F172A; --td-text-color-secondary: #64748B;';
+    },
     enrichedProjects() {
       return this.projects.map((project) => {
         const projectSessions = this.sessions.filter(session => session.project_id === project.id);
@@ -126,19 +112,30 @@ export default {
     goToCreateProject() {
       uni.navigateTo({ url: '/pages/project-detail/index?new=1' });
     },
-    goToEditProject(projectId) {
-      uni.navigateTo({ url: `/pages/project-detail/index?id=${projectId}&edit=1` });
-    },
     goToProject(projectId) {
       uni.navigateTo({ url: `/pages/project-detail/index?id=${projectId}` });
     },
     goToArchived() {
       uni.navigateTo({ url: '/pages/project-archive/index' });
     },
+    handleMoreAction(project) {
+      uni.showActionSheet({
+        itemList: ['编辑项目', '归档项目', '删除项目'],
+        success: (res) => {
+          if (res.tapIndex === 0) {
+            uni.navigateTo({ url: `/pages/project-detail/index?id=${project.id}&edit=1` });
+          } else if (res.tapIndex === 1) {
+            this.handleArchiveProject(project);
+          } else if (res.tapIndex === 2) {
+            this.handleDeleteProject(project);
+          }
+        },
+      });
+    },
     handleArchiveProject(project) {
       uni.showModal({
         title: '归档项目',
-        content: `归档后，“${project.name}” 会从首页移到归档项目页。`,
+        content: `归档后，"${project.name}" 会从首页移到归档项目页。`,
         success: async (res) => {
           if (!res.confirm) return;
           try {
@@ -154,7 +151,7 @@ export default {
     handleDeleteProject(project) {
       uni.showModal({
         title: '删除项目',
-        content: `删除后，“${project.name}” 下的全部试验和记录将被永久移除，且不可恢复。`,
+        content: `删除后，"${project.name}" 下的全部试验和记录将被永久移除，且不可恢复。`,
         confirmColor: '#d54941',
         success: async (res) => {
           if (!res.confirm) return;
@@ -181,113 +178,118 @@ export default {
 </script>
 
 <style scoped>
+/* ===== Page Layout ===== */
 .page {
   min-height: 100vh;
   background: #f3f5f7;
-  padding: 0 24rpx 160rpx;
+  padding: 24rpx 24rpx 160rpx;
 }
 
+/* ===== Hero ===== */
 .hero {
-  padding: 48rpx 0 24rpx;
+  margin-bottom: 20rpx;
 }
-
+.hero-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .page-title {
-  display: block;
-  font-size: 44rpx;
+  font-size: 36rpx;
   font-weight: 700;
   color: #111827;
 }
-
-.page-subtitle {
-  display: block;
-  margin-top: 12rpx;
+.archive-link {
   font-size: 26rpx;
-  line-height: 1.6;
-  color: #5f6b7a;
+  color: var(--td-brand-color, #1E293B);
+  font-weight: 500;
 }
 
-.toolbar {
+/* ===== Stats Badges ===== */
+.stats-badges {
   display: flex;
-  justify-content: flex-end;
+  gap: 12rpx;
+  flex-wrap: wrap;
+  margin-top: 14rpx;
+}
+.badge {
+  font-size: 24rpx;
+  padding: 6rpx 18rpx;
+  border-radius: 20rpx;
+  font-weight: 500;
+}
+.badge-primary {
+  background: var(--td-brand-color, #1E293B);
+  color: #ffffff;
+}
+.badge-success {
+  background: var(--td-success-color, #059669);
+  color: #ffffff;
+}
+.badge-muted {
+  background: #e8eaed;
+  color: var(--td-text-color-secondary, #64748B);
+}
+
+/* ===== Search Bar ===== */
+.search-bar {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  font-size: 26rpx;
+  color: #94a3b8;
+  box-shadow: 0 6rpx 24rpx rgba(15, 23, 42, 0.06);
   margin-bottom: 20rpx;
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16rpx;
-  margin-bottom: 24rpx;
-}
-
-.stat-card {
+/* ===== Shared Card ===== */
+.card {
   background: #ffffff;
   border-radius: 24rpx;
-  padding: 24rpx 20rpx;
   box-shadow: 0 6rpx 24rpx rgba(15, 23, 42, 0.06);
+  padding: 28rpx;
 }
 
-.stat-value {
-  display: block;
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.stat-label {
-  display: block;
-  margin-top: 10rpx;
-  font-size: 24rpx;
-  color: #64748b;
-}
-
+/* ===== Empty State ===== */
 .empty-wrap {
-  background: #ffffff;
-  border-radius: 24rpx;
   padding: 48rpx 28rpx;
-  box-shadow: 0 6rpx 24rpx rgba(15, 23, 42, 0.06);
 }
-
 .empty-title {
   display: block;
   font-size: 34rpx;
   font-weight: 600;
   color: #111827;
 }
-
 .empty-desc {
   display: block;
   margin: 16rpx 0 32rpx;
   font-size: 26rpx;
-  color: #64748b;
+  color: var(--td-text-color-secondary, #64748B);
   line-height: 1.6;
 }
 
+/* ===== Project List ===== */
 .project-list {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
 }
 
+/* ===== Project Card ===== */
 .project-card {
-  background: #ffffff;
-  border-radius: 24rpx;
-  padding: 28rpx;
-  box-shadow: 0 6rpx 24rpx rgba(15, 23, 42, 0.06);
+  border-left: 6rpx solid var(--td-success-color, #059669);
 }
-
 .project-card-main {
   display: flex;
   flex-direction: column;
-  gap: 14rpx;
+  gap: 12rpx;
 }
-
-.project-card-head {
+.project-row1 {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 16rpx;
 }
-
 .project-name {
   flex: 1;
   font-size: 32rpx;
@@ -295,24 +297,15 @@ export default {
   color: #0f172a;
   line-height: 1.5;
 }
-
 .project-meta {
-  font-size: 25rpx;
-  color: #5f6b7a;
+  font-size: 24rpx;
+  color: var(--td-text-color-secondary, #64748B);
 }
-
-.project-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-}
-
 .project-actions {
   display: flex;
-  gap: 12rpx;
-  margin-top: 24rpx;
+  gap: 16rpx;
+  margin-top: 18rpx;
 }
-
 .project-actions :deep(.t-button) {
   flex: 1;
 }
