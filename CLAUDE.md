@@ -16,9 +16,13 @@ npm start            # Production start
 npm test             # Run all tests
 npx jest tests/ai-service.test.js --forceExit  # Run single test file
 
+# Client env sync (before mobile debugging)
+.\scripts\sync-client-api-env.ps1    # PowerShell
+scripts\sync-client-api-env.cmd      # CMD
+
 # Frontend (HBuilderX managed UniApp project, NOT Vue CLI)
 # Open client/ in HBuilderX IDE, then Run > Run to Browser/Device
-# No npm scripts — this is a HBuilderX project, not a Vite/CLI project
+# H5 dev URL: http://localhost:8080
 ```
 
 ## Architecture
@@ -50,7 +54,7 @@ src/services/
 
 ### Frontend (client/)
 
-HBuilderX-managed UniApp + Vue3 project. No `package.json` at root — managed by HBuilderX IDE.
+HBuilderX-managed UniApp + Vue3 project. No `package.json` at root — managed by HBuilderX IDE. `client/package.json` exists only for Vite dependency (`vite.config.js`).
 
 ```
 vite.config.js          → loadEnv(mode, __dirname) + define to inject VITE_* into process.env
@@ -59,15 +63,26 @@ manifest.json           → UniApp config (H5 dev server proxies /api → localh
 services/config.js      → Reads process.env.VITE_API_BASE_URL (statically replaced by Vite define)
 services/api.js         → All HTTP calls, base URL from config.js
 pages/
-  index/                → Session list (home)
+  index/                → Project list (home)
+  project-detail/       → Project detail + create/edit form
+  project-archive/      → Archived projects list (restore/delete)
   session-detail/       → Session detail + create form (dual-purpose via ?new=1)
-  record/               → Core recording page (RecorderManager → upload → ASR → AI)
-  export/               → Export Excel/CSV (uses conditional compilation for H5 vs App)
+  record/               → Core recording page (RecorderManager → upload → ASR → AI extract)
+  export/               → Export Excel/CSV (conditional compilation for H5 vs App)
 ```
 
 **Conditional compilation:** `// #ifdef H5` / `// #ifndef H5` for platform-specific code (browser download vs uni.downloadFile+uni.openDocument).
 
 **Env var loading:** HBuilderX does NOT auto-load `.env`. `vite.config.js` must call `loadEnv(mode, __dirname)` and inject values via `define`. Use `process.env.VITE_*` in code (not `import.meta.env.*` which only works on H5). Client `.env` must be saved as **UTF-8 without BOM** — Windows editors (Notepad) add BOM by default which silently breaks variable names.
+
+**Real device debugging:** Copy `client/.env.example` to `client/.env`, set `VITE_API_BASE_URL` to dev machine's LAN IP, then run `scripts/sync-client-api-env.ps1` or `.cmd` to auto-detect and update the IP.
+
+## Coding Conventions
+
+- 2-space indentation in both JS and Vue files
+- `camelCase` for variables/functions, `kebab-case` for page directories (e.g., `session-detail`)
+- Backend modules organized by responsibility: `models`, `routes`, `services`
+- Frontend: reuse existing UI components and patterns before writing custom CSS
 
 ## Testing
 
@@ -80,7 +95,15 @@ Server tests use Jest + supertest. Each test file sets its own `process.env.DB_P
 ZHIPU_API_KEY=xxx       # Uses ZhiPu adapter
 # DASHSCOPE_API_KEY=xxx  # Alternative: uses Qwen adapter
 # PORT=3000              # Default port
+
+# client/.env  (from .env.example, UTF-8 without BOM)
+VITE_API_BASE_URL=http://192.168.x.x:3000
+VITE_API_TIMEOUT=10000
 ```
+
+## Research & Documentation
+
+When answering library/framework questions, use Context7 to fetch current documentation before falling back to web search. Prefer existing libraries and platform capabilities over custom implementations.
 
 ## PRD / Design Doc
 

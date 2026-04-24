@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeepSeek-V4 论文知识点总结</title>
+  <link rel="stylesheet" href="https://unpkg.com/tdesign-vue-next/dist/tdesign.min.css">
+  <style>
+    :root {
+      --td-brand-color: #0052d9;
+      --td-brand-color-light: #e8f0fe;
+      --td-success-color: #00a870;
+      --td-warning-color: #ed7b2f;
+      --td-error-color: #e34d59;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+      min-height: 100vh;
+      color: #1d2129;
+    }
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #0b1e3d 0%, #132a52 40%, #1a3a6b 100%);
+      border-radius: 16px;
+      padding: 48px 40px;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(0,82,217,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-title {
+      color: #fff;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-subtitle {
+      color: rgba(255,255,255,0.7);
+      font-size: 18px;
+      margin-top: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-tags {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-tag {
+      background: rgba(255,255,255,0.12);
+      color: #a8c8ff;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    /* Section */
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 40px 0 20px;
+      padding-left: 16px;
+      border-left: 4px solid var(--td-brand-color);
+      color: #1d2129;
+    }
+
+    /* Card grid */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .card-grid-3 {
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
+
+    /* Stat bar */
+    .stat-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      flex: 1;
+      min-width: 200px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--td-brand-color);
+    }
+    .stat-label {
+      font-size: 14px;
+      color: #86909c;
+      margin-top: 4px;
+    }
+    .stat-sub {
+      font-size: 13px;
+      color: var(--td-success-color);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* Comparison Table */
+    .compare-table {
+      width: 100%;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      margin-bottom: 32px;
+    }
+    .compare-table th {
+      background: #f3f4f5;
+      padding: 14px 20px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 14px;
+      color: #4e5969;
+    }
+    .compare-table td {
+      padding: 14px 20px;
+      border-top: 1px solid #f0f1f2;
+      font-size: 14px;
+    }
+    .compare-table .pro {
+      color: var(--td-success-color);
+      font-weight: 600;
+    }
+    .compare-table .v4 {
+      color: var(--td-brand-color);
+      font-weight: 600;
+    }
+
+    /* Flow */
+    .flow-steps {
+      display: flex;
+      gap: 0;
+      margin: 24px 0;
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .flow-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--td-brand-color);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .flow-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1d2129;
+      white-space: nowrap;
+    }
+    .flow-arrow {
+      color: #c9cdd4;
+      font-size: 20px;
+      margin: 0 16px;
+      font-weight: 300;
+    }
+
+    /* Timeline style */
+    .arch-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      margin-bottom: 16px;
+      border-left: 4px solid var(--td-brand-color);
+    }
+    .arch-item h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1d2129;
+      margin-bottom: 8px;
+    }
+    .arch-item p {
+      font-size: 14px;
+      color: #4e5969;
+      line-height: 1.7;
+    }
+    .arch-item .badge {
+      display: inline-block;
+      background: var(--td-brand-color-light);
+      color: var(--td-brand-color);
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+
+    /* benchmark highlight */
+    .bench-highlight {
+      background: linear-gradient(135deg, #e8f8f0, #f0faf5);
+      border: 1px solid #b7ebd0;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 16px 0;
+    }
+    .bench-highlight h3 {
+      color: #00a870;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+    .bench-highlight ul {
+      list-style: none;
+      padding: 0;
+    }
+    .bench-highlight li {
+      font-size: 14px;
+      color: #1d2129;
+      padding: 4px 0;
+    }
+    .bench-highlight li::before {
+      content: "✓ ";
+      color: #00a870;
+      font-weight: 700;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: #86909c;
+      font-size: 13px;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid #e5e6eb;
+    }
+    a { color: var(--td-brand-color); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-title">DeepSeek-V4 论文知识总结</div>
+      <div class="hero-subtitle">Towards Highly Efficient Million-Token Context Intelligence</div>
+      <div class="hero-subtitle" style="font-size:14px;margin-top:4px;">DeepSeek-AI · 2026</div>
+      <div class="hero-tags">
+        <span class="hero-tag">1.6T 参数 (Pro)</span>
+        <span class="hero-tag">284B 参数 (Flash)</span>
+        <span class="hero-tag">100万 Token 上下文</span>
+        <span class="hero-tag">MoE 架构</span>
+        <span class="hero-tag">32T+ Tokens 预训练</span>
+        <span class="hero-tag">开源</span>
+      </div>
+    </div>
+
+    <!-- 模型概览 -->
+    <h2 class="section-title">1. 模型家族</h2>
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-value">1.6T</div>
+        <div class="stat-label">DeepSeek-V4-Pro 总参数</div>
+        <div class="stat-sub">49B 激活参数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">284B</div>
+        <div class="stat-label">DeepSeek-V4-Flash 总参数</div>
+        <div class="stat-sub">13B 激活参数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">1M</div>
+        <div class="stat-label">上下文长度 (tokens)</div>
+        <div class="stat-sub">百万级 token 支持</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">32T+</div>
+        <div class="stat-label">预训练数据量</div>
+        <div class="stat-sub">高质量多样化语料</div>
+      </div>
+    </div>
+
+    <div class="compare-table">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <th></th>
+          <th>DeepSeek-V4-Pro</th>
+          <th>DeepSeek-V4-Flash</th>
+          <th>DeepSeek-V3.2 (对比)</th>
+        </tr>
+        <tr>
+          <td>总参数量</td>
+          <td class="v4">1.6T</td>
+          <td class="v4">284B</td>
+          <td>685B</td>
+        </tr>
+        <tr>
+          <td>激活参数</td>
+          <td class="v4">49B</td>
+          <td class="v4">13B</td>
+          <td>37B</td>
+        </tr>
+        <tr>
+          <td>1M token 时 FLOPs</td>
+          <td class="pro">V3.2 的 27%</td>
+          <td class="pro">V3.2 的 10%</td>
+          <td>基准线 (100%)</td>
+        </tr>
+        <tr>
+          <td>1M token 时 KV Cache</td>
+          <td class="pro">V3.2 的 10%</td>
+          <td class="pro">V3.2 的 7%</td>
+          <td>基准线 (100%)</td>
+        </tr>
+        <tr>
+          <td>注意力机制</td>
+          <td>CSA + HCA 混合</td>
+          <td>CSA + HCA 混合</td>
+          <td>MLA (Multi-head Latent Attention)</td>
+        </tr>
+        <tr>
+          <td>精度</td>
+          <td>FP4 (专家权重)</td>
+          <td>FP4 (专家权重)</td>
+          <td>FP8</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 核心架构创新 -->
+    <h2 class="section-title">2. 四大架构创新</h2>
+
+    <div class="arch-item">
+      <span class="badge">创新 1</span>
+      <h3>混合注意力：CSA + HCA</h3>
+      <p>
+        <strong>CSA (Compressed Sparse Attention)</strong>：将 KV Cache 沿序列维度进行压缩，然后执行 DeepSeek Sparse Attention (DSA)，利用稀疏性降低计算量。<br><br>
+        <strong>HCA (Heavily Compressed Attention)</strong>：对 KV Cache 采用更激进的压缩策略（压缩率远高于 CSA），但保持全连接注意力（dense attention），避免稀疏计算的开销。<br><br>
+        <strong>混合策略</strong>：两个注意力头各司其职——CSA 处理需要精细稀疏注意力的层，HCA 处理可以大幅压缩的层。这是实现百万 token 高效推理的<em>核心突破</em>。
+      </p>
+    </div>
+
+    <div class="arch-item">
+      <span class="badge">创新 2</span>
+      <h3>Manifold-Constrained Hyper-Connections (mHC)</h3>
+      <p>
+        对传统残差连接 (Residual Connections) 的升级。通过流形约束控制信息流动路径，让梯度在超深层网络中更稳定地传播。<br><br>
+        mHC 使得模型在 1.6T 参数的超大规模下仍能高效训练，不会出现传统残差网络在深度增加时的退化问题。
+      </p>
+    </div>
+
+    <div class="arch-item">
+      <span class="badge">创新 3</span>
+      <h3>Muon 优化器</h3>
+      <p>
+        首次将 Muon 优化器应用于 LLM 训练。相比传统的 AdamW，Muon 通过 Newton-Schulz 迭代实现梯度矩阵的正交化，带来<strong>更快的收敛速度</strong>和<strong>更好的训练稳定性</strong>。<br><br>
+        实现了混合 ZeRO 策略来高效支持 Muon 在大规模分布式训练中的内存需求。
+      </p>
+    </div>
+
+    <div class="arch-item">
+      <span class="badge">创新 4</span>
+      <h3>FP4 量化感知训练 (QAT)</h3>
+      <p>
+        在 MoE 专家权重和 Indexer QK 路径上引入 FP4 精度训练。通过量化感知训练确保模型在低精度下仍保持高质量。<br><br>
+        在推理阶段，专家权重以 FP4 存储，大幅降低了内存占用和计算量。
+      </p>
+    </div>
+
+    <!-- 保留设计 -->
+    <h2 class="section-title">3. 继承架构 (来自 DeepSeek-V3)</h2>
+    <div class="card-grid">
+      <div class="arch-item">
+        <h3>DeepSeekMoE</h3>
+        <p>细粒度专家分割 + 共享专家隔离的 Mixture-of-Experts 框架。每个 token 仅激活少量专家，保持大模型容量的同时控制推理成本。</p>
+      </div>
+      <div class="arch-item">
+        <h3>Multi-Token Prediction (MTP)</h3>
+        <p>训练时同时预测多个未来 token，提高训练效率和数据利用率。推理时可配合投机采样 (Speculative Decoding) 加速。</p>
+      </div>
+    </div>
+
+    <!-- 基础设施 -->
+    <h2 class="section-title">4. 训练基础设施</h2>
+    <div class="card-grid">
+      <div class="arch-item">
+        <h3>通信-计算融合 MoE Kernel</h3>
+        <p>将 MoE 模块的通信、计算和内存访问合并到单一融合 kernel 中，实现三者完全重叠执行，消除 GPU 空闲等待。</p>
+      </div>
+      <div class="arch-item">
+        <h3>TileLang DSL</h3>
+        <p>领域特定语言用于开发 GPU Kernel，平衡开发效率与运行时性能。比手写 CUDA 更快迭代，比纯 PyTorch 更高效。</p>
+      </div>
+      <div class="arch-item">
+        <h3>Batch-Invariant 确定性 Kernel</h3>
+        <p>保证训练和推理在任意 batch 大小下结果 bitwise 一致。消除因 batch 大小变化导致的精度漂移问题。</p>
+      </div>
+      <div class="arch-item">
+        <h3>Autograd 扩展</h3>
+        <p>Tensor-level 检查点 (checkpointing) 实现细粒度的重计算控制，平衡内存和计算。同时支持两阶段上下文并行 (Contextual Parallelism) 管理压缩注意力。</p>
+      </div>
+    </div>
+
+    <!-- 推理框架 -->
+    <h2 class="section-title">5. 推理基础设施</h2>
+    <div class="card-grid">
+      <div class="arch-item">
+        <h3>异构 KV Cache 结构</h3>
+        <p>将 KV Cache 分为热数据 (GPU HBM) 和冷数据 (CPU 内存/磁盘)，根据访问频率动态调度。</p>
+      </div>
+      <div class="arch-item">
+        <h3>磁盘 KV Cache 存储</h3>
+        <p>支持将 KV Cache 持久化到磁盘，实现高效的共享前缀复用 (shared-prefix reuse)，大幅减少重复计算。</p>
+      </div>
+    </div>
+
+    <!-- 后训练 -->
+    <h2 class="section-title">6. 后训练流程 (Post-Training)</h2>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-text">专家训练<br><small>Specialist Training</small></div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-text">On-Policy 蒸馏<br><small>OPD</small></div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-text">强化学习<br><small>RL @ 1M Context</small></div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-text">Agentic 沙箱<br><small>Sandbox Infra</small></div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="arch-item">
+        <h3>Specialist Training</h3>
+        <p>针对不同能力维度（数学、编程、写作、搜索等）训练专门的专家模型，每个专家在特定领域达到最优性能。</p>
+      </div>
+      <div class="arch-item">
+        <h3>On-Policy Distillation (OPD)</h3>
+        <p>创新的蒸馏策略：让学生模型在自身策略生成的数据上学习，而非静态数据集。配合全词表高效 Teacher 调度，实现在线知识迁移。</p>
+      </div>
+      <div class="arch-item">
+        <h3>RL 扩展到百万 Token</h3>
+        <p>强化学习框架能处理 1M token 的上下文，配合可抢占和容错的 Rollout 服务，支持超长序列的 RL 训练。</p>
+      </div>
+      <div class="arch-item">
+        <h3>Agentic AI 沙箱基础设施</h3>
+        <p>为 Code Agent 等场景构建安全隔离的执行环境，支持模型在真实环境中交互学习。</p>
+      </div>
+    </div>
+
+    <!-- Benchmark -->
+    <h2 class="section-title">7. 基准测试表现 (Pro-Max vs 竞品)</h2>
+    <div class="compare-table">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <th>基准</th>
+          <th>DeepSeek-V4-Pro-Max</th>
+          <th>Claude Opus 4.6 Max</th>
+          <th>GPT-5.4 xHigh</th>
+          <th>Gemini 3.1 Pro High</th>
+        </tr>
+        <tr>
+          <td>SimpleQA (知识)</td>
+          <td class="v4">90.2</td>
+          <td>85.9</td>
+          <td>89.1</td>
+          <td>80.6</td>
+        </tr>
+        <tr>
+          <td>HLE (综合)</td>
+          <td class="v4">~57.9</td>
+          <td>46.2</td>
+          <td>45.3</td>
+          <td>44.4</td>
+        </tr>
+        <tr>
+          <td>Apex Verified</td>
+          <td class="v4">~67.9</td>
+          <td>65.4</td>
+          <td>68.5</td>
+          <td>~54.6</td>
+        </tr>
+        <tr>
+          <td>Codeforces</td>
+          <td>3206</td>
+          <td>3168</td>
+          <td class="v4">3206</td>
+          <td>3052</td>
+        </tr>
+        <tr>
+          <td>SWE-Bench Verified</td>
+          <td class="v4">~75.1</td>
+          <td>75.6</td>
+          <td>78.1</td>
+          <td>80.6</td>
+        </tr>
+        <tr>
+          <td>Terminal Bench 2.0</td>
+          <td class="v4">~48.8</td>
+          <td>47.2</td>
+          <td>51.8</td>
+          <td>~40.0</td>
+        </tr>
+        <tr>
+          <td>Toolathlon</td>
+          <td class="v4">~39.8</td>
+          <td>37.7</td>
+          <td>40.0</td>
+          <td>~51.8</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="bench-highlight">
+      <h3>关键结论</h3>
+      <ul>
+        <li>在 <strong>SimpleQA</strong>（知识问答）上超越所有对比模型，达到 90.2</li>
+        <li>在 <strong>HLE</strong>（Humanity's Last Exam）上大幅领先，比 Claude Opus 4.6 高 ~12 分</li>
+        <li>在 <strong>Codeforces</strong> 编程竞赛中与 GPT-5.4 并列第一</li>
+        <li>在 <strong>Terminal Bench</strong> 命令行任务中超越 Claude 和 Gemini</li>
+        <li>整体定位：<strong>开源最强模型</strong>，与闭源顶级模型全面竞争</li>
+      </ul>
+    </div>
+
+    <!-- 总结 -->
+    <h2 class="section-title">8. 核心贡献总结</h2>
+    <div class="card-grid">
+      <div class="arch-item">
+        <h3>效率革命</h3>
+        <p>通过 CSA+HCA 混合注意力，百万 token 推理仅需 V3.2 的 10%~27% FLOPs 和 7%~10% KV Cache，使百万上下文的<strong>日常使用成为可能</strong>。</p>
+      </div>
+      <div class="arch-item">
+        <h3>训练创新</h3>
+        <p>mHC 超连接 + Muon 优化器 + FP4 QAT，三者协同实现了 <strong>1.6T 参数 MoE 模型在 32T+ tokens 上的稳定训练</strong>。</p>
+      </div>
+      <div class="arch-item">
+        <h3>系统工程</h3>
+        <p>从 TileLang kernel 开发到异构 KV Cache 管理，从融合 MoE 通信到磁盘缓存，<strong>全栈优化</strong>覆盖训练和推理的每个环节。</p>
+      </div>
+      <div class="arch-item">
+        <h3>后训练体系</h3>
+        <p>Specialist Training → OPD → RL @ 1M → Agentic Sandbox 形成完整后训练流水线，<strong>解锁模型在真实任务中的能力</strong>。</p>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      论文来源：<a href="https://huggingface.co/collections/deepseek-ai/deepseek-v4" target="_blank">DeepSeek-V4 @ HuggingFace</a> &nbsp;|&nbsp;
+      模型权重：<a href="https://huggingface.co/collections/deepseek-ai/deepseek-v4" target="_blank">huggingface.co/deepseek-ai/deepseek-v4</a><br>
+      页面生成于 2026-04-24
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>DeepSeek-V4 知识点总结</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+      background: #f2f3f5;
+      color: #1d2129;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #0b1e3d 0%, #1a3a6b 100%);
+      border-radius: 14px;
+      padding: 28px 20px 24px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      color: #fff;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .hero .sub {
+      color: rgba(255,255,255,0.65);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    .hero .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .hero .tag {
+      background: rgba(255,255,255,0.1);
+      color: #a8c8ff;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    /* Section */
+    .sec-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 24px 0 12px;
+      padding-left: 10px;
+      border-left: 3px solid #0052d9;
+      color: #1d2129;
+    }
+
+    /* Stat Grid */
+    .stat-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .stat-item .val {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0052d9;
+    }
+    .stat-item .lbl {
+      font-size: 12px;
+      color: #86909c;
+      margin-top: 2px;
+    }
+    .stat-item .hint {
+      font-size: 11px;
+      color: #00a870;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* Compare table */
+    .tbl-wrap {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      margin-bottom: 16px;
+    }
+    .tbl-wrap table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .tbl-wrap th {
+      background: #f5f6f7;
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      color: #86909c;
+      white-space: nowrap;
+    }
+    .tbl-wrap th:first-child { width: 36%; }
+    .tbl-wrap td {
+      padding: 10px 12px;
+      border-top: 1px solid #f0f1f2;
+      white-space: nowrap;
+    }
+    .tbl-wrap td:first-child { color: #4e5969; }
+    .c-g { color: #00a870; font-weight: 600; }
+    .c-b { color: #0052d9; font-weight: 600; }
+
+    /* Card */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      margin-bottom: 10px;
+    }
+    .card .badge {
+      display: inline-block;
+      background: #e8f0fe;
+      color: #0052d9;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1d2129;
+      margin-bottom: 6px;
+    }
+    .card p {
+      font-size: 13px;
+      color: #4e5969;
+      line-height: 1.65;
+    }
+
+    /* Steps */
+    .steps {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .step .n {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #0052d9;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .step .t {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1d2129;
+    }
+    .step .t small {
+      display: block;
+      color: #86909c;
+      font-weight: 400;
+      font-size: 11px;
+    }
+    .step .arr {
+      display: none;
+    }
+
+    /* Highlight */
+    .hl {
+      background: linear-gradient(135deg, #e8f8f0, #f0faf5);
+      border: 1px solid #b7ebd0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 12px 0 16px;
+    }
+    .hl h3 {
+      color: #00a870;
+      font-size: 14px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .hl li {
+      font-size: 13px;
+      color: #1d2129;
+      padding: 3px 0;
+      list-style: none;
+      line-height: 1.6;
+    }
+    .hl li::before { content: "✓ "; color: #00a870; font-weight: 700; }
+
+    /* Divider */
+    .hr { height: 1px; background: #e5e6eb; margin: 4px 0; }
+
+    /* Footer */
+    .ft {
+      text-align: center;
+      color: #86909c;
+      font-size: 12px;
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e6eb;
+      line-height: 1.8;
+    }
+    .ft a { color: #0052d9; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Hero -->
+    <div class="hero">
+      <h1>DeepSeek-V4 论文总结</h1>
+      <div class="sub">Towards Highly Efficient Million-Token Context Intelligence</div>
+      <div class="sub">DeepSeek-AI · 2026</div>
+      <div class="tags">
+        <span class="tag">1.6T 参数 Pro</span>
+        <span class="tag">284B 参数 Flash</span>
+        <span class="tag">100万 Token 上下文</span>
+        <span class="tag">MoE 架构</span>
+        <span class="tag">32T+ 预训练</span>
+        <span class="tag">开源</span>
+      </div>
+    </div>
+
+    <!-- 1. 模型家族 -->
+    <h2 class="sec-title">模型家族</h2>
+    <div class="stat-row">
+      <div class="stat-item">
+        <div class="val">1.6T</div>
+        <div class="lbl">V4-Pro 总参数</div>
+        <div class="hint">49B 激活</div>
+      </div>
+      <div class="stat-item">
+        <div class="val">284B</div>
+        <div class="lbl">V4-Flash 总参数</div>
+        <div class="hint">13B 激活</div>
+      </div>
+      <div class="stat-item">
+        <div class="val">1M</div>
+        <div class="lbl">上下文长度</div>
+        <div class="hint">百万 token</div>
+      </div>
+      <div class="stat-item">
+        <div class="val">32T+</div>
+        <div class="lbl">预训练数据</div>
+        <div class="hint">高质量语料</div>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <tr><th></th><th>V4-Pro</th><th>V4-Flash</th><th>V3.2</th></tr>
+        <tr><td>总参数</td><td class="c-b">1.6T</td><td class="c-b">284B</td><td>685B</td></tr>
+        <tr><td>激活参数</td><td class="c-b">49B</td><td class="c-b">13B</td><td>37B</td></tr>
+        <tr><td>1M FLOPs</td><td class="c-g">27%</td><td class="c-g">10%</td><td>100%</td></tr>
+        <tr><td>1M KV Cache</td><td class="c-g">10%</td><td class="c-g">7%</td><td>100%</td></tr>
+        <tr><td>注意力</td><td>CSA+HCA</td><td>CSA+HCA</td><td>MLA</td></tr>
+        <tr><td>精度</td><td>FP4</td><td>FP4</td><td>FP8</td></tr>
+      </table>
+    </div>
+
+    <!-- 2. 四大创新 -->
+    <h2 class="sec-title">四大架构创新</h2>
+
+    <div class="card">
+      <div class="badge">创新 1</div>
+      <h3>混合注意力 CSA + HCA</h3>
+      <p><b>CSA</b> 将 KV Cache 沿序列维度压缩后做稀疏注意力，<b>HCA</b> 更激进压缩但保持 dense attention。两者分工，是百万 token 高效推理的核心突破。</p>
+    </div>
+
+    <div class="card">
+      <div class="badge">创新 2</div>
+      <h3>mHC 超连接</h3>
+      <p>升级传统残差连接，通过流形约束控制信息流，让 1.6T 参数的超深网络也能稳定训练。</p>
+    </div>
+
+    <div class="card">
+      <div class="badge">创新 3</div>
+      <h3>Muon 优化器</h3>
+      <p>首次在 LLM 训练中使用 Muon，通过梯度正交化实现比 AdamW 更快的收敛和更好的稳定性。</p>
+    </div>
+
+    <div class="card">
+      <div class="badge">创新 4</div>
+      <h3>FP4 量化感知训练</h3>
+      <p>MoE 专家权重以 FP4 精度训练和存储，大幅降低显存和计算量，同时保持模型质量。</p>
+    </div>
+
+    <!-- 3. 继承 -->
+    <h2 class="sec-title">继承自 V3 的设计</h2>
+    <div class="card">
+      <h3>DeepSeekMoE</h3>
+      <p>细粒度专家分割 + 共享专家隔离，每个 token 仅激活少量专家。</p>
+    </div>
+    <div class="card">
+      <h3>Multi-Token Prediction</h3>
+      <p>同时预测多个未来 token，提高训练效率，推理时可配合投机解码加速。</p>
+    </div>
+
+    <!-- 4. 训练基础设施 -->
+    <h2 class="sec-title">训练基础设施</h2>
+    <div class="card">
+      <h3>融合 MoE Kernel</h3>
+      <p>通信、计算、内存访问完全重叠的单一融合 kernel。</p>
+    </div>
+    <div class="card">
+      <h3>TileLang DSL</h3>
+      <p>GPU Kernel 开发的领域特定语言，兼顾效率和开发效率。</p>
+    </div>
+    <div class="card">
+      <h3>确定性 Kernel</h3>
+      <p>保证任意 batch 大小下训练和推理的 bitwise 一致性。</p>
+    </div>
+    <div class="card">
+      <h3>Autograd 扩展</h3>
+      <p>Tensor 级检查点实现细粒度重计算控制，支持两阶段上下文并行。</p>
+    </div>
+
+    <!-- 5. 推理 -->
+    <h2 class="sec-title">推理基础设施</h2>
+    <div class="card">
+      <h3>异构 KV Cache</h3>
+      <p>热数据留 GPU HBM，冷数据迁 CPU 内存/磁盘，按访问频率动态调度。</p>
+    </div>
+    <div class="card">
+      <h3>磁盘持久化 KV Cache</h3>
+      <p>将 KV Cache 写到磁盘，实现高效的共享前缀复用，避免重复计算。</p>
+    </div>
+
+    <!-- 6. 后训练 -->
+    <h2 class="sec-title">后训练流程</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="n">1</div>
+        <div class="t">专家训练<small>按数学/编程/写作等维度分别精调</small></div>
+      </div>
+      <div class="step">
+        <div class="n">2</div>
+        <div class="t">On-Policy 蒸馏<small>学生在自身策略生成的数据上学习</small></div>
+      </div>
+      <div class="step">
+        <div class="n">3</div>
+        <div class="t">RL @ 1M 上下文<small>强化学习框架扩展至百万 token</small></div>
+      </div>
+      <div class="step">
+        <div class="n">4</div>
+        <div class="t">Agentic 沙箱<small>安全隔离环境让模型在真实任务中交互学习</small></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>OPD 亮点</h3>
+      <p>创新的 On-Policy 蒸馏让学生模型在自身策略生成的数据上学习，配合全词表 Teacher 调度，实现在线知识迁移。</p>
+    </div>
+
+    <!-- 7. Benchmark -->
+    <h2 class="sec-title">基准测试 (Pro-Max)</h2>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>基准</th><th>V4</th><th>Opus</th><th>GPT</th><th>Gemini</th></tr>
+        <tr><td>SimpleQA</td><td class="c-b">90.2</td><td>85.9</td><td>89.1</td><td>80.6</td></tr>
+        <tr><td>HLE</td><td class="c-b">57.9</td><td>46.2</td><td>45.3</td><td>44.4</td></tr>
+        <tr><td>Apex</td><td class="c-b">67.9</td><td>65.4</td><td>68.5</td><td>54.6</td></tr>
+        <tr><td>Codeforces</td><td>3206</td><td>3168</td><td class="c-b">3206</td><td>3052</td></tr>
+        <tr><td>SWE-Bench</td><td>75.1</td><td>75.6</td><td class="c-b">78.1</td><td>80.6</td></tr>
+        <tr><td>Terminal</td><td class="c-b">48.8</td><td>47.2</td><td>51.8</td><td>40.0</td></tr>
+        <tr><td>Toolathlon</td><td>39.8</td><td>37.7</td><td>40.0</td><td class="c-b">51.8</td></tr>
+      </table>
+    </div>
+
+    <div class="hl">
+      <h3>关键结论</h3>
+      <ul>
+        <li>SimpleQA 知识问答超越所有模型 (90.2)</li>
+        <li>HLE 最难考试大幅领先 Claude 12 分</li>
+        <li>Codeforces 与 GPT-5.4 并列第一</li>
+        <li>定位：<b>开源最强</b>，与闭源顶级模型全面竞争</li>
+      </ul>
+    </div>
+
+    <!-- 8. 贡献 -->
+    <h2 class="sec-title">四大核心贡献</h2>
+    <div class="card">
+      <h3>效率革命</h3>
+      <p>1M token 推理仅需 V3.2 的 10%~27% FLOPs 和 7%~10% KV Cache，百万上下文日常使用成为可能。</p>
+    </div>
+    <div class="card">
+      <h3>训练创新</h3>
+      <p>mHC + Muon + FP4 QAT 协同，实现 1.6T 参数模型在 32T+ tokens 上的稳定训练。</p>
+    </div>
+    <div class="card">
+      <h3>系统工程</h3>
+      <p>TileLang → 融合 Kernel → 确定性计算 → 异构 Cache，全栈优化覆盖每个环节。</p>
+    </div>
+    <div class="card">
+      <h3>后训练体系</h3>
+      <p>Specialist → OPD → RL @ 1M → Sandbox 完整流水线，解锁真实任务能力。</p>
+    </div>
+
+    <div class="ft">
+      论文 & 权重：<a href="https://huggingface.co/collections/deepseek-ai/deepseek-v4">huggingface.co/deepseek-ai/deepseek-v4</a><br>
+      生成于 2026-04-24
+    </div>
+  </div>
+</body>
+</html>
